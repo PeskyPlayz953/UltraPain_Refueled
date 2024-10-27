@@ -4,14 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace Ultrapain.Patches
 {
-    class SteamFriends_SetRichPresence_Patch
+    class SteamController_FetchSceneActivity_Patch
     {
-        static bool Prefix(string __key, ref string __value)
+        static bool Prefix(ref string scene)
         {
-            if (__value != null)
-            {
-                __value = ConfigManager.pluginName.value;
-            }
             return true;
         }
     }

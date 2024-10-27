@@ -794,8 +794,8 @@ namespace Ultrapain
 
             if(realUltrapainDifficulty && ConfigManager.discordRichPresenceToggle.value)
                 harmonyTweaks.Patch(GetMethod<DiscordController>("SendActivity"), prefix: GetHarmonyMethod(GetMethod<DiscordController_SendActivity_Patch>("Prefix")));
-            if (realUltrapainDifficulty && ConfigManager.steamRichPresenceToggle.value)
-                harmonyTweaks.Patch(GetMethod<SteamFriends>("SetRichPresence"), prefix: GetHarmonyMethod(GetMethod<SteamFriends_SetRichPresence_Patch>("Prefix")));
+            //if (realUltrapainDifficulty && ConfigManager.steamRichPresenceToggle.value)
+                //harmonyTweaks.Patch(GetMethod<SteamController>("FetchSceneActivity"), prefix: GetHarmonyMethod(GetMethod<SteamController_FetchSceneActivity_Patch>("Prefix")));
 
             PatchAllEnemies();
             PatchAllPlayers();
