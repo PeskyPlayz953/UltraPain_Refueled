@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Ultrapain": {
+      "commandName": "Executable",
+      "executablePath": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\ULTRAKILL\\ULTRAKILL.exe",
+      "commandLineArgs": "--doorstop-enable true --doorstop-target \"C:\\Users\\btrep\\AppData\\Roaming\\r2modmanPlus-local\\ULTRAKILL\\profiles\\new profile\\BepInEx\\core\\BepInEx.Preloader.dll\"",
+      "workingDirectory": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\ULTRAKILL\\",
+      "nativeDebugging": true
+    }
+  }
+}
