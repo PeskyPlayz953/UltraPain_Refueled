@@ -35,9 +35,9 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>Libs\Assembly-CSharp.dll</HintPath>
     </Reference>
-	  <Reference Include="ProjectProphet">
-		  <HintPath>Libs\ProjectProphet.dll</HintPath>
-	  </Reference>
+    <Reference Include="ProjectProphet">
+      <HintPath>Libs\ProjectProphet.dll</HintPath>
+    </Reference>
     <Reference Include="Facepunch.Steamworks.Win64">
       <HintPath>Libs\Facepunch.Steamworks.Win64.dll</HintPath>
     </Reference>
