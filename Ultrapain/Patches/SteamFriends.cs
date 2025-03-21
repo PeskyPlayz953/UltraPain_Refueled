@@ -6,9 +6,9 @@ namespace Ultrapain.Patches
 {
     class SteamController_FetchSceneActivity_Patch
     {
-        static bool Prefix(ref string scene)
+        static void Postfix(ref string scene)
         {
-            return true;
+            SteamFriends.SetRichPresence("difficulty", "ULTRAPAIN");
         }
     }
 }

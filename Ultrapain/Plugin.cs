@@ -21,6 +21,8 @@ using PluginConfig.API;
 using ProjectProphet.Behaviours;
 using ProjectProphet;
 using ProjectProphet.Behaviours.Props;
+using TMPro;
+using GameConsole.pcon;
 
 namespace Ultrapain
 {
@@ -30,9 +32,10 @@ namespace Ultrapain
     [BepInDependency("plonk.straymode", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
+        //Keeping GUID for compatibility with AngryLevelLoader
         public const string PLUGIN_GUID = "com.eternalUnion.ultraPain";
-        public const string PLUGIN_NAME = "Ultra Pain";
-        public const string PLUGIN_VERSION = "1.1.0";
+        public const string PLUGIN_NAME = "ULTRAPAIN: REFUELED";
+        public const string PLUGIN_VERSION = "1.1.1";
 
         public static Plugin instance;
 
@@ -278,17 +281,43 @@ namespace Ultrapain
                 LoadPrefabs();
 
                 //Canvas/Difficulty Select (1)/Violent
-                Transform difficultySelect = SceneManager.GetActiveScene().GetRootGameObjects().Where(obj => obj.name == "Canvas").First().transform.Find("Difficulty Select (1)");
-                GameObject ultrapainButton = GameObject.Instantiate(difficultySelect.Find("Violent").gameObject, difficultySelect);
+                GameObject canvas = SceneManager.GetActiveScene().GetRootGameObjects().Where(obj => obj.name == "Canvas").FirstOrDefault();
+
+                if (canvas == null) return;
+				Transform difficultySelect = canvas.transform.Find("Difficulty Select (1)").transform.Find("Interactables");
+                GameObject ultrapainButton = GameObject.Instantiate(difficultySelect.Find("Brutal").gameObject, difficultySelect);
                 currentDifficultyButton = ultrapainButton;
 
                 ultrapainButton.transform.Find("Name").GetComponent<TMPro.TextMeshProUGUI>().text = ConfigManager.pluginName.value;
-                ultrapainButton.GetComponent<DifficultySelectButton>().difficulty = 5;
+                ultrapainButton.GetComponent<DifficultySelectButton>().difficulty = 6;
                 RectTransform ultrapainTrans = ultrapainButton.GetComponent<RectTransform>();
-                ultrapainTrans.anchoredPosition = new Vector2(20f, -104f);
+                ultrapainTrans.anchoredPosition = new Vector2(20f, -250f);
+                //VERY BAD NO GOOD UI CHANGE CODE
+                difficultySelect.GetComponent<ObjectActivateInSequence>().delay = 0.04f;
+				difficultySelect.Find("LineBreak").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, 80f); //Top of MEDIUM section
+				difficultySelect.Find("LineBreak (4)").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -35f); //Bottom of MEDIUM section
+				difficultySelect.Find("LineBreak (2)").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -70f); //Top of HARD section
+				difficultySelect.Find("LineBreak (5)").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -185f); //Bottom of HARD section
+				difficultySelect.Find("Normal").GetComponent<RectTransform>().anchoredPosition = new Vector2(42f, 100f); //HARD Label
+				difficultySelect.Find("Hard").GetComponent<RectTransform>().anchoredPosition = new Vector2(42f, -50f); //VERY HARD Label
+				difficultySelect.Find("Standard").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, 50f);
+				difficultySelect.Find("Violent").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -5f);
+				difficultySelect.Find("Brutal").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -100f);
+				difficultySelect.Find("V1 Must Die").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -155f);
 
-                //Canvas/Difficulty Select (1)/Violent Info
-                GameObject info = GameObject.Instantiate(difficultySelect.Find("Violent Info").gameObject, difficultySelect);
+                GameObject sectionTop = GameObject.Instantiate(difficultySelect.Find("LineBreak (5)").gameObject, difficultySelect);
+				GameObject sectionBottom = GameObject.Instantiate(difficultySelect.Find("LineBreak (5)").gameObject, difficultySelect);
+				GameObject sectionLabel = GameObject.Instantiate(difficultySelect.Find("Hard").gameObject, difficultySelect);
+				sectionTop.GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -220f);
+				sectionBottom.GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -280f);
+				sectionLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(42f, -200f);
+                sectionLabel.GetComponent<TextMeshProUGUI>().text = "CUSTOM";
+
+                GameObject[] newarray = [difficultySelect.Find("Title").gameObject,difficultySelect.Find("Easy").gameObject, difficultySelect.Find("LineBreak (1)").gameObject, difficultySelect.Find("Casual Easy").gameObject, difficultySelect.Find("Casual Hard").gameObject, difficultySelect.Find("LineBreak (3)").gameObject, difficultySelect.Find("Normal").gameObject, difficultySelect.Find("LineBreak").gameObject, difficultySelect.Find("Standard").gameObject, difficultySelect.Find("Violent").gameObject, difficultySelect.Find("LineBreak (4)").gameObject, difficultySelect.Find("Hard").gameObject, difficultySelect.Find("LineBreak (2)").gameObject, difficultySelect.Find("Brutal").gameObject, difficultySelect.Find("V1 Must Die").gameObject, difficultySelect.Find("LineBreak (5)").gameObject, sectionLabel.gameObject, sectionTop.gameObject, ultrapainButton.gameObject, sectionBottom.gameObject, difficultySelect.Find("Assist Tip").gameObject];
+                difficultySelect.GetComponent<ObjectActivateInSequence>().objectsToActivate = newarray;
+
+				//Canvas/Difficulty Select (1)/Violent Info
+				GameObject info = GameObject.Instantiate(difficultySelect.Find("Brutal Info").gameObject, difficultySelect);
                 currentDifficultyPanel = info;
                 currentDifficultyInfoText = info.transform.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
                 currentDifficultyInfoText.text = ConfigManager.pluginInfo;
@@ -330,18 +359,44 @@ namespace Ultrapain
             {
                 LoadPrefabs();
 
-                //Canvas/Difficulty Select (1)/Violent
-                Transform difficultySelect = SceneManager.GetActiveScene().GetRootGameObjects().Where(obj => obj.name == "Canvas").First().transform.Find("Intro/Difficulty Select");
-                GameObject ultrapainButton = GameObject.Instantiate(difficultySelect.Find("Violent").gameObject, difficultySelect);
+				//Canvas/Difficulty Select (1)/Violent
+				GameObject canvas = SceneManager.GetActiveScene().GetRootGameObjects().Where(obj => obj.name == "Canvas").FirstOrDefault();
+
+				if (canvas == null) return;
+				Transform difficultySelect = canvas.transform.Find("Difficulty Select (1)").transform.Find("Interactables");
+				GameObject ultrapainButton = GameObject.Instantiate(difficultySelect.Find("Brutal").gameObject, difficultySelect);
                 currentDifficultyButton = ultrapainButton;
 
                 ultrapainButton.transform.Find("Name").GetComponent<Text>().text = ConfigManager.pluginName.value;
-                ultrapainButton.GetComponent<DifficultySelectButton>().difficulty = 5;
+                ultrapainButton.GetComponent<DifficultySelectButton>().difficulty = 6;
                 RectTransform ultrapainTrans = ultrapainButton.GetComponent<RectTransform>();
-                ultrapainTrans.anchoredPosition = new Vector2(20f, -104f);
+				ultrapainTrans.anchoredPosition = new Vector2(20f, -250f);
+                //VERY BAD NO GOOD UI CHANGE CODE
+                difficultySelect.GetComponent<ObjectActivateInSequence>().delay = 0.04f;
+				difficultySelect.Find("LineBreak").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, 80f); //Top of MEDIUM section
+				difficultySelect.Find("LineBreak (4)").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -35f); //Bottom of MEDIUM section
+				difficultySelect.Find("LineBreak (2)").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -70f); //Top of HARD section
+				difficultySelect.Find("LineBreak (5)").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -185f); //Bottom of HARD section
+				difficultySelect.Find("Normal").GetComponent<RectTransform>().anchoredPosition = new Vector2(42f, 100f); //HARD Label
+				difficultySelect.Find("Hard").GetComponent<RectTransform>().anchoredPosition = new Vector2(42f, -50f); //VERY HARD Label
+				difficultySelect.Find("Standard").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, 50f);
+				difficultySelect.Find("Violent").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -5f);
+				difficultySelect.Find("Brutal").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -100f);
+				difficultySelect.Find("V1 Must Die").GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -155f);
 
-                //Canvas/Difficulty Select (1)/Violent Info
-                GameObject info = GameObject.Instantiate(difficultySelect.Find("Violent Info").gameObject, difficultySelect);
+				GameObject sectionTop = GameObject.Instantiate(difficultySelect.Find("LineBreak (5)").gameObject, difficultySelect);
+				GameObject sectionBottom = GameObject.Instantiate(difficultySelect.Find("LineBreak (5)").gameObject, difficultySelect);
+				GameObject sectionLabel = GameObject.Instantiate(difficultySelect.Find("Hard").gameObject, difficultySelect);
+				sectionTop.GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -220f);
+				sectionBottom.GetComponent<RectTransform>().anchoredPosition = new Vector2(20f, -280f);
+				sectionLabel.GetComponent<RectTransform>().anchoredPosition = new Vector2(42f, -200f);
+				sectionLabel.GetComponent<TextMeshProUGUI>().text = "CUSTOM";
+
+				GameObject[] newarray = [difficultySelect.Find("Title").gameObject, difficultySelect.Find("Easy").gameObject, difficultySelect.Find("LineBreak (1)").gameObject, difficultySelect.Find("Casual Easy").gameObject, difficultySelect.Find("Casual Hard").gameObject, difficultySelect.Find("LineBreak (3)").gameObject, difficultySelect.Find("Normal").gameObject, difficultySelect.Find("LineBreak").gameObject, difficultySelect.Find("Standard").gameObject, difficultySelect.Find("Violent").gameObject, difficultySelect.Find("LineBreak (4)").gameObject, difficultySelect.Find("Hard").gameObject, difficultySelect.Find("LineBreak (2)").gameObject, difficultySelect.Find("Brutal").gameObject, difficultySelect.Find("V1 Must Die").gameObject, difficultySelect.Find("LineBreak (5)").gameObject, sectionLabel.gameObject, sectionTop.gameObject, ultrapainButton.gameObject, sectionBottom.gameObject, difficultySelect.Find("Assist Tip").gameObject];
+				difficultySelect.GetComponent<ObjectActivateInSequence>().objectsToActivate = newarray;
+
+				//Canvas/Difficulty Select (1)/Violent Info
+				GameObject info = GameObject.Instantiate(difficultySelect.Find("Brutal Info").gameObject, difficultySelect);
                 currentDifficultyPanel = info;
                 currentDifficultyInfoText = info.transform.Find("Text").GetComponent<TMPro.TextMeshProUGUI>();
                 currentDifficultyInfoText.text = ConfigManager.pluginInfo;
@@ -638,7 +693,6 @@ namespace Ultrapain
             if(ConfigManager.somethingWickedSpawnOn43.value)
             {
                 harmonyTweaks.Patch(GetMethod<ObjectActivator>("Activate"), prefix: GetHarmonyMethod(GetMethod<ObjectActivator_Activate>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Wicked>("GetHit"), postfix: GetHarmonyMethod(GetMethod<JokeWicked_GetHit>("Postfix")));
             }
 
             if (ConfigManager.panopticonFullPhase.value)
@@ -792,10 +846,11 @@ namespace Ultrapain
             if (!ultrapainDifficulty)
                 return;
 
+            
             if(realUltrapainDifficulty && ConfigManager.discordRichPresenceToggle.value)
                 harmonyTweaks.Patch(GetMethod<DiscordController>("SendActivity"), prefix: GetHarmonyMethod(GetMethod<DiscordController_SendActivity_Patch>("Prefix")));
-            //if (realUltrapainDifficulty && ConfigManager.steamRichPresenceToggle.value)
-                //harmonyTweaks.Patch(GetMethod<SteamController>("FetchSceneActivity"), prefix: GetHarmonyMethod(GetMethod<SteamController_FetchSceneActivity_Patch>("Prefix")));
+            if (realUltrapainDifficulty && ConfigManager.steamRichPresenceToggle.value)
+                harmonyTweaks.Patch(GetMethod<SteamController>("FetchSceneActivity"), postfix: GetHarmonyMethod(GetMethod<SteamController_FetchSceneActivity_Patch>("Postfix")));
 
             PatchAllEnemies();
             PatchAllPlayers();

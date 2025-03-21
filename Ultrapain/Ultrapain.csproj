@@ -2,10 +2,10 @@
 
   <PropertyGroup>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Ultrapain</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>Ultrapain_Refueled</AssemblyName>
     <Description>More powerful enemies and custom mechanics</Description>
-    <Version>1.1.0</Version>
+    <Version>1.0.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

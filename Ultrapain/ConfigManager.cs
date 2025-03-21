@@ -182,16 +182,15 @@ namespace Ultrapain
         public static BoolField steamRichPresenceToggle;
         public static StringField pluginName;
         public static string pluginInfo =
-                @"<color=white>Unfair enemies and lethal attacks.
+				@"<color=white>Enemies are changed heavily to be more aggressive and your moveset is expanded.</color>
 
-New enemy behaviors and weapon synergies. Changes made are meant to be unfair.</color>
+<b>Almost any mistake is lethal. Have fun!</b><color=orange>
 
-<b>Recommended for players who have completed BRUTAL and VIOLENT difficulty to perfection.</b>
+Intended for players who have perfected BRUTAL difficulty.
 
-<color=orange><i>Uses UKMD difficulty slot and save data.</color>
-
-<color=#666666>REFUELED v1.0 does not currently support VIOLENCE layer enemies.</color></i>
-                    ";
+</color><color=#666666><i>
+v1.1.1 NOTE: No longer uses UKMD Save data, now uses Difficulty 6 save data.
+V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color></i>";
         public static BoolField globalDifficultySwitch;
         public static ConfigPanel memePanel;
 
@@ -858,10 +857,7 @@ New enemy behaviors and weapon synergies. Changes made are meant to be unfair.</
             };
 
             // ROOT PANEL
-            ButtonArrayField buttons = new ButtonArrayField(config.rootPanel, "buttons", 2, new float[] { 0.5f, 0.5f }, new string[] { "Bug Report", "Feature Request" });
-            buttons.OnClickEventHandler(0).onClick += () => Application.OpenURL("https://github.com/eternalUnion/UltraPain/issues/new?assignees=eternalUnion&labels=bug&projects=&template=bug-report.md&title=%5BBUG%5D+Bug+name+here");
-            buttons.OnClickEventHandler(1).onClick += () => Application.OpenURL("https://github.com/eternalUnion/UltraPain/issues/new?assignees=eternalUnion&labels=feature+request&projects=&template=feature-request.md&title=%5BFEATURE%5D+Your+idea+goes+here");
-
+            new ConfigHeader(config.rootPanel, "ULTRAPAIN V"+Plugin.PLUGIN_VERSION.ToString());
             new ConfigHeader(config.rootPanel, "Enemy Tweaks");
             enemyTweakToggle = new BoolField(config.rootPanel, "Enabled", "enemyTweakToggle", true);
             enemyTweakToggle.presetLoadPriority = 1;
@@ -916,12 +912,12 @@ New enemy behaviors and weapon synergies. Changes made are meant to be unfair.</
             {
                 dirtyField = true;
             };
-            new ConfigHeader(config.rootPanel, "Crossmod Support");
-            crossmodSupport_MD = new BoolField(config.rootPanel, "Masquerade Divinity Tech", "crossmodSupport_MD", true);
-            crossmodSupport_SM = new BoolField(config.rootPanel, "Straymode Tech", "crossmodSupport_SM", true);
-            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("maranara_project_prophet"))
+            new ConfigHeader(config.rootPanel, "Crossmod Support (Out of Order)");
+            //crossmodSupport_MD = new BoolField(config.rootPanel, "Masquerade Divinity Tech", "crossmodSupport_MD", true);
+            //crossmodSupport_SM = new BoolField(config.rootPanel, "Straymode Tech", "crossmodSupport_SM", true);
+            /*if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("maranara_project_prophet"))
             {
-                new ConfigHeader(config.rootPanel, "Masquerade Divinity is loaded!", 12, TextAnchor.MiddleLeft);
+                new ConfigHeader(config.rootPanel, "Masquerade Divinity is loaded!", 12, TMPro.TextAlignmentOptions.MidlineLeft);
                 crossmodSupport_MD.onValueChange += (BoolField.BoolValueChangeEvent e) =>
                 {
                     dirtyField = true;
@@ -933,7 +929,7 @@ New enemy behaviors and weapon synergies. Changes made are meant to be unfair.</
             }
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("plonk.straymode"))
             {
-                new ConfigHeader(config.rootPanel, "STRAYMODE is loaded!", 12, TextAnchor.MiddleLeft);
+                new ConfigHeader(config.rootPanel, "STRAYMODE is loaded!", 12, TMPro.TextAlignmentOptions.MidlineLeft);
                 crossmodSupport_SM.onValueChange += (BoolField.BoolValueChangeEvent e) =>
                 {
                     dirtyField = true;
@@ -942,7 +938,7 @@ New enemy behaviors and weapon synergies. Changes made are meant to be unfair.</
             else
             {
                 crossmodSupport_SM.value = false;
-            }
+            }*/
 
             new ConfigHeader(config.rootPanel, "Extras");
             memePanel = new ConfigPanel(config.rootPanel, "Memes", "memePanel");

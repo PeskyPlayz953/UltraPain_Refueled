@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using TMPro;
 using UnityEngine.UI;
 
 namespace Ultrapain.Patches
@@ -7,11 +8,35 @@ namespace Ultrapain.Patches
     {
         static void Postfix(DifficultyTitle __instance)
         {
-            if (__instance.txt2.text.Contains("ULTRAKILL MUST DIE") && Plugin.realUltrapainDifficulty)
-                __instance.txt2.text = __instance.txt2.text.Replace("ULTRAKILL MUST DIE", ConfigManager.pluginName.value);
+			int @int = MonoSingleton<PrefsManager>.Instance.GetInt("difficulty", 0);
+			string text = "";
+			if (__instance.lines)
+			{
+				text += "-- ";
+			}
+			switch (@int)
+			{
+				case 6:
+					text += "ULTRAPAIN"; break;
+				case 7:
+					text += "REFUELED"; break;
+				case 8:
+					text += "DUAL"; break;
+				case 9:
+					text += "SYSTEM OVERLOAD"; break;
+				case 10:
+					text += "CUSTOM"; break;
 
-            //else if (___txt.text == "-- VIOLENT --" && Plugin.ultrapainDifficulty)
-            //    ___txt.text = "-- ULTRAPAIN --";
+			}
+			if (__instance.lines)
+			{
+				text += " --";
+			}
+			if (__instance.txt2)
+			{
+				__instance.txt2.text = text;
+				return;
+			}
         }
     }
 }

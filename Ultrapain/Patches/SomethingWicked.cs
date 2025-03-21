@@ -83,7 +83,12 @@ namespace Ultrapain.Patches
 
             if (flag.spear != null)
                 GameObject.Destroy(flag.spear);
-        }
+
+			if (__instance.GetComponent<JokeWicked>() == null)
+				return;
+
+			GameObject.Destroy(__instance.gameObject);
+		}
     }
 
     class JokeWicked : MonoBehaviour
@@ -91,17 +96,6 @@ namespace Ultrapain.Patches
         void OnDestroy()
         {
             MusicManager.Instance.ForceStartMusic();
-        }
-    }
-
-    class JokeWicked_GetHit
-    {
-        static void Postfix(Wicked __instance)
-        {
-            if (__instance.GetComponent<JokeWicked>() == null)
-                return;
-
-            GameObject.Destroy(__instance.gameObject);
         }
     }
 

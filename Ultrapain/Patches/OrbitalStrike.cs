@@ -203,9 +203,6 @@ namespace Ultrapain.Patches
         class StateInfo
         {
             public bool state = false;
-
-            public string id;
-            public int points;
             public GameObject templateExplosion;
         }
 
@@ -475,7 +472,6 @@ namespace Ultrapain.Patches
 
     class EnemyIdentifier_DeliverDamage
     {
-        static Coin lastExplosiveCoin = null;
 
         class StateInfo
         {
