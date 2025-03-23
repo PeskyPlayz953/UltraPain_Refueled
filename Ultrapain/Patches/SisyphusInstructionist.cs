@@ -93,6 +93,7 @@ namespace Ultrapain.Patches
         {
             //___explosion = shockwave/*___m_ShockwavePrefab.gameObject*/;
             ___m_ShockwavePrefab = shockwave.GetComponent<PhysicalShockwave>();
+            __instance.rubble = shockwave;
         }
     }
 
@@ -103,11 +104,11 @@ namespace Ultrapain.Patches
      */
     public class SisyphusInstructionist_Update
     {
-        static void Postfix(Sisyphus __instance, ref PhysicalShockwave ___m_ShockwavePrefab)
+        static void Postfix(Sisyphus __instance)
         {
-            //___explosion = shockwave/*___m_ShockwavePrefab.gameObject*/;
-            if(___m_ShockwavePrefab == null)
-                ___m_ShockwavePrefab = SisyphusInstructionist_Start.shockwave.GetComponent<PhysicalShockwave>();
+            //___explosion = shockwave___m_ShockwavePrefab.gameObject;
+            if(__instance.m_ShockwavePrefab == null)
+                __instance.m_ShockwavePrefab = SisyphusInstructionist_Start.shockwave.GetComponent<PhysicalShockwave>();
         }
     }
 

@@ -6,9 +6,9 @@ using ProjectProphet;
 using ProjectProphet.Behaviours.Props;
 using HarmonyLib;
 
+
 namespace Ultrapain.Patches
 {
-    [HarmonyPriority(5)]
     class CrossmodSupport_MD_SplendorConductor
     {
         static bool Prefix(Explosion __instance)

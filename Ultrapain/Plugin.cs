@@ -278,6 +278,7 @@ namespace Ultrapain
             string currentSceneName = SceneManager.GetActiveScene().name;
             if (currentSceneName == mainMenuSceneName)
             {
+
                 LoadPrefabs();
 
                 //Canvas/Difficulty Select (1)/Violent
@@ -323,6 +324,8 @@ namespace Ultrapain
                 currentDifficultyInfoText.text = ConfigManager.pluginInfo;
                 currentDifficultyInfoText.enableVertexGradient = true;
                 currentDifficultyInfoText.colorGradient = new TMPro.VertexGradient(new Color(1, 0, 0, 1), new Color(1, 0, 0, 1), new Color(0.6226f, 0, 0, 1), new Color(0.6226f, 0, 0, 1));
+                currentDifficultyInfoText.ForceMeshUpdate();
+                currentDifficultyInfoText.Rebuild(CanvasUpdate.PreRender);
                 TMPro.TextMeshProUGUI currentDifficultyHeaderText = info.transform.Find("Title (1)").GetComponent<TMPro.TextMeshProUGUI>();
                 currentDifficultyHeaderText.text = $"--{ConfigManager.pluginName.value}--";
                 currentDifficultyHeaderText.autoSizeTextContainer = true;
@@ -472,7 +475,7 @@ namespace Ultrapain
 
         public static Harmony harmonyTweaks;
         public static Harmony harmonyBase;
-        private static MethodInfo GetMethod<T>(string name)
+        private static MethodInfo DoGetMethod<T>(string name)
         {
             return typeof(T).GetMethod(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
         }
@@ -497,336 +500,339 @@ namespace Ultrapain
 
             if (ConfigManager.friendlyFireDamageOverrideToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(GetMethod<Explosion_Collide_FF>("Prefix")), postfix: GetHarmonyMethod(GetMethod<Explosion_Collide_FF>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<PhysicalShockwave>("CheckCollision"), prefix: GetHarmonyMethod(GetMethod<PhysicalShockwave_CheckCollision_FF>("Prefix")), postfix: GetHarmonyMethod(GetMethod<PhysicalShockwave_CheckCollision_FF>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<VirtueInsignia>("OnTriggerEnter"), prefix: GetHarmonyMethod(GetMethod<VirtueInsignia_OnTriggerEnter_FF>("Prefix")), postfix: GetHarmonyMethod(GetMethod<VirtueInsignia_OnTriggerEnter_FF>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<SwingCheck2>("CheckCollision"), prefix: GetHarmonyMethod(GetMethod<SwingCheck2_CheckCollision_FF>("Prefix")), postfix: GetHarmonyMethod(GetMethod<SwingCheck2_CheckCollision_FF>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<Projectile>("Collided"), prefix: GetHarmonyMethod(GetMethod<Projectile_Collided_FF>("Prefix")), postfix: GetHarmonyMethod(GetMethod<Projectile_Collided_FF>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide_FF>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide_FF>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<PhysicalShockwave>("CheckCollision"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<PhysicalShockwave_CheckCollision_FF>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<PhysicalShockwave_CheckCollision_FF>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<VirtueInsignia>("OnTriggerEnter"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<VirtueInsignia_OnTriggerEnter_FF>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<VirtueInsignia_OnTriggerEnter_FF>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<SwingCheck2>("CheckCollision"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SwingCheck2_CheckCollision_FF>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SwingCheck2_CheckCollision_FF>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Projectile>("Collided"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Projectile_Collided_FF>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Projectile_Collided_FF>("Postfix")));
 
-                harmonyTweaks.Patch(GetMethod<EnemyIdentifier>("DeliverDamage"), prefix: GetHarmonyMethod(GetMethod<EnemyIdentifier_DeliverDamage_FF>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Flammable>("Burn"), prefix: GetHarmonyMethod(GetMethod<Flammable_Burn_FF>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<FireZone>("OnTriggerStay"), prefix: GetHarmonyMethod(GetMethod<StreetCleaner_Fire_FF>("Prefix")), postfix: GetHarmonyMethod(GetMethod<StreetCleaner_Fire_FF>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyIdentifier>("DeliverDamage"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<EnemyIdentifier_DeliverDamage_FF>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Flammable>("Burn"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Flammable_Burn_FF>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FireZone>("OnTriggerStay"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<StreetCleaner_Fire_FF>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StreetCleaner_Fire_FF>("Postfix")));
             }
 
-            harmonyTweaks.Patch(GetMethod<EnemyIdentifier>("UpdateModifiers"), postfix: GetHarmonyMethod(GetMethod<EnemyIdentifier_UpdateModifiers>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyIdentifier>("UpdateModifiers"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<EnemyIdentifier_UpdateModifiers>("Postfix")));
 
-            harmonyTweaks.Patch(GetMethod<StatueBoss>("Start"), postfix: GetHarmonyMethod(GetMethod<StatueBoss_Start_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_Start_Patch>("Postfix")));
             if (ConfigManager.cerberusDashToggle.value)
-                harmonyTweaks.Patch(GetMethod<StatueBoss>("StopDash"), postfix: GetHarmonyMethod(GetMethod<StatueBoss_StopDash_Patch>("Postfix")));
-            if(ConfigManager.cerberusParryable.value)
+                harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("Tackle"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_Tackle_Patch>("Postfix")));
+            if (ConfigManager.cerberusParryable.value)
             {
-                harmonyTweaks.Patch(GetMethod<StatueBoss>("StopTracking"), postfix: GetHarmonyMethod(GetMethod<StatueBoss_StopTracking_Patch>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<StatueBoss>("Stomp"), postfix: GetHarmonyMethod(GetMethod<StatueBoss_Stomp_Patch>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<Statue>("GetHurt"), prefix: GetHarmonyMethod(GetMethod<Statue_GetHurt_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("StopTracking"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_StopTracking_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("Stomp"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_Stomp_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("StopDash"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_StopDash_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Statue>("GetHurt"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Statue_GetHurt_Patch>("Prefix")));
             }
 
-            harmonyTweaks.Patch(GetMethod<Drone>("Start"), postfix: GetHarmonyMethod(GetMethod<Drone_Start_Patch>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<Drone>("Shoot"), prefix: GetHarmonyMethod(GetMethod<Drone_Shoot_Patch>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<Drone>("PlaySound"), prefix: GetHarmonyMethod(GetMethod<Drone_PlaySound_Patch>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<Drone>("Update"), postfix: GetHarmonyMethod(GetMethod<Drone_Update>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Drone_Start_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Shoot"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Drone_Shoot_Patch>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("PlaySound"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Drone_PlaySound_Patch>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Update"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Drone_Update>("Postfix")));
             if(ConfigManager.droneHomeToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<Drone>("Death"), prefix: GetHarmonyMethod(GetMethod<Drone_Death_Patch>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Drone>("GetHurt"), prefix: GetHarmonyMethod(GetMethod<Drone_GetHurt_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Death"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Drone_Death_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("GetHurt"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Drone_GetHurt_Patch>("Prefix")));
             }
 
-            harmonyTweaks.Patch(GetMethod<Ferryman>("Start"), postfix: GetHarmonyMethod(GetMethod<FerrymanStart>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Ferryman>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<FerrymanStart>("Postfix")));
             if(ConfigManager.ferrymanComboToggle.value)
-                harmonyTweaks.Patch(GetMethod<Ferryman>("StopMoving"), postfix: GetHarmonyMethod(GetMethod<FerrymanStopMoving>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Ferryman>("StopMoving"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<FerrymanStopMoving>("Postfix")));
 
             if(ConfigManager.filthExplodeToggle.value)
-                harmonyTweaks.Patch(GetMethod<SwingCheck2>("CheckCollision"), prefix: GetHarmonyMethod(GetMethod<SwingCheck2_CheckCollision_Patch2>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<SwingCheck2>("CheckCollision"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SwingCheck2_CheckCollision_Patch2>("Prefix")));
 
             if(ConfigManager.fleshPrisonSpinAttackToggle.value)
-                harmonyTweaks.Patch(GetMethod<FleshPrison>("HomingProjectileAttack"), postfix: GetHarmonyMethod(GetMethod<FleshPrisonShoot>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("HomingProjectileAttack"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<FleshPrisonShoot>("Postfix")));
 
             if (ConfigManager.hideousMassInsigniaToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<Projectile>("Explode"), postfix: GetHarmonyMethod(GetMethod<Projectile_Explode_Patch>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<Mass>("ShootExplosive"), postfix: GetHarmonyMethod(GetMethod<HideousMassHoming>("Postfix")), prefix: GetHarmonyMethod(GetMethod<HideousMassHoming>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Projectile>("Explode"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Projectile_Explode_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Mass>("ShootExplosive"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<HideousMassHoming>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<HideousMassHoming>("Prefix")));
             }
 
-            harmonyTweaks.Patch(GetMethod<SpiderBody>("Start"), postfix: GetHarmonyMethod(GetMethod<MaliciousFace_Start_Patch>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<SpiderBody>("ChargeBeam"), postfix: GetHarmonyMethod(GetMethod<MaliciousFace_ChargeBeam>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<SpiderBody>("BeamChargeEnd"), prefix: GetHarmonyMethod(GetMethod<MaliciousFace_BeamChargeEnd>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_Start_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("ChargeBeam"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_ChargeBeam>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("BeamChargeEnd"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_BeamChargeEnd>("Prefix")));
             if (ConfigManager.maliciousFaceHomingProjectileToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<SpiderBody>("ShootProj"), postfix: GetHarmonyMethod(GetMethod<MaliciousFace_ShootProj_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("ShootProj"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_ShootProj_Patch>("Postfix")));
             }
             if (ConfigManager.maliciousFaceRadianceOnEnrage.value)
-                harmonyTweaks.Patch(GetMethod<SpiderBody>("Enrage"), postfix: GetHarmonyMethod(GetMethod<MaliciousFace_Enrage_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("Enrage"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_Enrage_Patch>("Postfix")));
 
-            harmonyTweaks.Patch(GetMethod<Mindflayer>("Start"), postfix: GetHarmonyMethod(GetMethod<Mindflayer_Start_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Mindflayer>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Mindflayer_Start_Patch>("Postfix")));
             if (ConfigManager.mindflayerShootTweakToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<Mindflayer>("ShootProjectiles"), prefix: GetHarmonyMethod(GetMethod<Mindflayer_ShootProjectiles_Patch>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<EnemyIdentifier>("DeliverDamage"), prefix: GetHarmonyMethod(GetMethod<EnemyIdentifier_DeliverDamage_MF>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Mindflayer>("ShootProjectiles"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Mindflayer_ShootProjectiles_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyIdentifier>("DeliverDamage"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<EnemyIdentifier_DeliverDamage_MF>("Prefix")));
             }
             if (ConfigManager.mindflayerTeleportComboToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<SwingCheck2>("CheckCollision"), postfix: GetHarmonyMethod(GetMethod<SwingCheck2_CheckCollision_Patch>("Postfix")), prefix: GetHarmonyMethod(GetMethod<SwingCheck2_CheckCollision_Patch>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Mindflayer>("MeleeTeleport"), prefix: GetHarmonyMethod(GetMethod<Mindflayer_MeleeTeleport_Patch>("Prefix")));
-                //harmonyTweaks.Patch(GetMethod<SwingCheck2>("DamageStop"), postfix: GetHarmonyMethod(GetMethod<SwingCheck2_DamageStop_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<SwingCheck2>("CheckCollision"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SwingCheck2_CheckCollision_Patch>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SwingCheck2_CheckCollision_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Mindflayer>("MeleeTeleport"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Mindflayer_MeleeTeleport_Patch>("Prefix")));
+                //harmonyTweaks.Patch(Plugin.DoGetMethod<SwingCheck2>("DamageStop"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SwingCheck2_DamageStop_Patch>("Postfix")));
             }
 
             if (ConfigManager.minosPrimeRandomTeleportToggle.value)
-                harmonyTweaks.Patch(GetMethod<MinosPrime>("ProjectileCharge"), postfix: GetHarmonyMethod(GetMethod<MinosPrimeCharge>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("ProjectileCharge"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrimeCharge>("Postfix")));
             if (ConfigManager.minosPrimeTeleportTrail.value)
-                harmonyTweaks.Patch(GetMethod<MinosPrime>("Teleport"), postfix: GetHarmonyMethod(GetMethod<MinosPrimeCharge>("TeleportPostfix")));
-            harmonyTweaks.Patch(GetMethod<MinosPrime>("Start"), postfix: GetHarmonyMethod(GetMethod<MinosPrime_Start>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<MinosPrime>("Dropkick"), prefix: GetHarmonyMethod(GetMethod<MinosPrime_Dropkick>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<MinosPrime>("Combo"), postfix: GetHarmonyMethod(GetMethod<MinosPrime_Combo>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<MinosPrime>("StopAction"), postfix: GetHarmonyMethod(GetMethod<MinosPrime_StopAction>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<MinosPrime>("Ascend"), prefix: GetHarmonyMethod(GetMethod<MinosPrime_Ascend>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<MinosPrime>("Death"), prefix: GetHarmonyMethod(GetMethod<MinosPrime_Death>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("Teleport"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrimeCharge>("TeleportPostfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrime_Start>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("Dropkick"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrime_Dropkick>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("Combo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrime_Combo>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("StopAction"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrime_StopAction>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("Ascend"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrime_Ascend>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("Death"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrime_Death>("Prefix")));
             if (ConfigManager.minosPrimeCrushAttackToggle.value)
-                harmonyTweaks.Patch(GetMethod<MinosPrime>("RiderKick"), prefix: GetHarmonyMethod(GetMethod<MinosPrime_RiderKick>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("RiderKick"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrime_RiderKick>("Prefix")));
             if (ConfigManager.minosPrimeComboExplosiveEndToggle.value)
-                harmonyTweaks.Patch(GetMethod<MinosPrime>("ProjectileCharge"), prefix: GetHarmonyMethod(GetMethod<MinosPrime_ProjectileCharge>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<MinosPrime>("ProjectileCharge"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<MinosPrime_ProjectileCharge>("Prefix")));
 
             if (ConfigManager.schismSpreadAttackToggle.value)
-                harmonyTweaks.Patch(GetMethod<ZombieProjectiles>("ShootProjectile"), postfix: GetHarmonyMethod(GetMethod<ZombieProjectile_ShootProjectile_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("ShootProjectile"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<ZombieProjectile_ShootProjectile_Patch>("Postfix")));
 
             if (ConfigManager.soliderShootTweakToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<ZombieProjectiles>("Start"), postfix: GetHarmonyMethod(GetMethod<Solider_Start_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Solider_Start_Patch>("Postfix")));
             }
             if(ConfigManager.soliderCoinsIgnoreWeakPointToggle.value)
-                harmonyTweaks.Patch(GetMethod<ZombieProjectiles>("SpawnProjectile"), postfix: GetHarmonyMethod(GetMethod<Solider_SpawnProjectile_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("SpawnProjectile"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Solider_SpawnProjectile_Patch>("Postfix")));
             if (ConfigManager.soliderShootGrenadeToggle.value || ConfigManager.soliderShootTweakToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<ZombieProjectiles>("ThrowProjectile"), postfix: GetHarmonyMethod(GetMethod<Solider_ThrowProjectile_Patch>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<Grenade>("Explode"), postfix: GetHarmonyMethod(GetMethod<Grenade_Explode_Patch>("Postfix")), prefix: GetHarmonyMethod(GetMethod<Grenade_Explode_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("ThrowProjectile"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Solider_ThrowProjectile_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Grenade>("Explode"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Explode_Patch>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Explode_Patch>("Prefix")));
             }
 
-            harmonyTweaks.Patch(GetMethod<Stalker>("SandExplode"), prefix: GetHarmonyMethod(GetMethod<Stalker_SandExplode_Patch>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<SandificationZone>("Enter"), postfix: GetHarmonyMethod(GetMethod<SandificationZone_Enter_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Stalker>("SandExplode"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Stalker_SandExplode_Patch>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<SandificationZone>("Enter"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SandificationZone_Enter_Patch>("Postfix")));
 
             if (ConfigManager.strayCoinsIgnoreWeakPointToggle.value)
-                harmonyTweaks.Patch(GetMethod<ZombieProjectiles>("SpawnProjectile"), postfix: GetHarmonyMethod(GetMethod<Swing>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("SpawnProjectile"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Swing>("Postfix")));
             if (ConfigManager.strayShootToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<ZombieProjectiles>("Start"), postfix: GetHarmonyMethod(GetMethod<ZombieProjectile_Start_Patch1>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<ZombieProjectiles>("ThrowProjectile"), postfix: GetHarmonyMethod(GetMethod<ZombieProjectile_ThrowProjectile_Patch>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<ZombieProjectiles>("SwingEnd"), prefix: GetHarmonyMethod(GetMethod<SwingEnd>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<ZombieProjectiles>("DamageEnd"), prefix: GetHarmonyMethod(GetMethod<DamageEnd>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<ZombieProjectile_Start_Patch1>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("ThrowProjectile"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<ZombieProjectile_ThrowProjectile_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("SwingEnd"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SwingEnd>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("DamageEnd"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<DamageEnd>("Prefix")));
             }
 
             if(ConfigManager.streetCleanerCoinsIgnoreWeakPointToggle.value)
-                harmonyTweaks.Patch(GetMethod<Streetcleaner>("Start"), postfix: GetHarmonyMethod(GetMethod<StreetCleaner_Start_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Streetcleaner>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StreetCleaner_Start_Patch>("Postfix")));
             if(ConfigManager.streetCleanerPredictiveDodgeToggle.value)
-                harmonyTweaks.Patch(GetMethod<BulletCheck>("OnTriggerEnter"), postfix: GetHarmonyMethod(GetMethod<BulletCheck_OnTriggerEnter_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<BulletCheck>("OnTriggerEnter"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<BulletCheck_OnTriggerEnter_Patch>("Postfix")));
 
-            harmonyTweaks.Patch(GetMethod<SwordsMachine>("Start"), postfix: GetHarmonyMethod(GetMethod<SwordsMachine_Start>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<SwordsMachine>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SwordsMachine_Start>("Postfix")));
             if (ConfigManager.swordsMachineNoLightKnockbackToggle.value || ConfigManager.swordsMachineSecondPhaseMode.value != ConfigManager.SwordsMachineSecondPhase.None)
             {
-                harmonyTweaks.Patch(GetMethod<SwordsMachine>("Knockdown"), prefix: GetHarmonyMethod(GetMethod<SwordsMachine_Knockdown_Patch>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<SwordsMachine>("Down"), postfix: GetHarmonyMethod(GetMethod<SwordsMachine_Down_Patch>("Postfix")), prefix: GetHarmonyMethod(GetMethod<SwordsMachine_Down_Patch>("Prefix")));
-                //harmonyTweaks.Patch(GetMethod<SwordsMachine>("SetSpeed"), prefix: GetHarmonyMethod(GetMethod<SwordsMachine_SetSpeed_Patch>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<SwordsMachine>("EndFirstPhase"), postfix: GetHarmonyMethod(GetMethod<SwordsMachine_EndFirstPhase_Patch>("Postfix")), prefix: GetHarmonyMethod(GetMethod<SwordsMachine_EndFirstPhase_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<SwordsMachine>("Knockdown"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SwordsMachine_Knockdown_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<SwordsMachine>("Down"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SwordsMachine_Down_Patch>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SwordsMachine_Down_Patch>("Prefix")));
+                //harmonyTweaks.Patch(Plugin.DoGetMethod<SwordsMachine>("SetSpeed"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SwordsMachine_SetSpeed_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<SwordsMachine>("EndFirstPhase"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SwordsMachine_EndFirstPhase_Patch>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SwordsMachine_EndFirstPhase_Patch>("Prefix")));
             }
             if (ConfigManager.swordsMachineExplosiveSwordToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<ThrownSword>("Start"), postfix: GetHarmonyMethod(GetMethod<ThrownSword_Start_Patch>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<ThrownSword>("OnTriggerEnter"), postfix: GetHarmonyMethod(GetMethod<ThrownSword_OnTriggerEnter_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ThrownSword>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<ThrownSword_Start_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ThrownSword>("OnTriggerEnter"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<ThrownSword_OnTriggerEnter_Patch>("Postfix")));
             }
 
-            harmonyTweaks.Patch(GetMethod<Turret>("Start"), postfix: GetHarmonyMethod(GetMethod<TurretStart>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Turret>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<TurretStart>("Postfix")));
             if(ConfigManager.turretBurstFireToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<Turret>("Shoot"), prefix: GetHarmonyMethod(GetMethod<TurretShoot>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Turret>("StartAiming"), postfix: GetHarmonyMethod(GetMethod<TurretAim>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Turret>("Shoot"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<TurretShoot>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Turret>("StartAiming"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<TurretAim>("Postfix")));
             }
 
-            harmonyTweaks.Patch(GetMethod<Explosion>("Start"), postfix: GetHarmonyMethod(GetMethod<V2CommonExplosion>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<V2CommonExplosion>("Postfix")));
 
-            harmonyTweaks.Patch(GetMethod<V2>("Start"), postfix: GetHarmonyMethod(GetMethod<V2FirstStart>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<V2>("Update"), prefix: GetHarmonyMethod(GetMethod<V2FirstUpdate>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<V2>("ShootWeapon"), prefix: GetHarmonyMethod(GetMethod<V2FirstShootWeapon>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<V2FirstStart>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("Update"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2FirstUpdate>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("ShootWeapon"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2FirstShootWeapon>("Prefix")));
 
-            harmonyTweaks.Patch(GetMethod<V2>("Start"), postfix: GetHarmonyMethod(GetMethod<V2SecondStart>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<V2SecondStart>("Postfix")));
             //if(ConfigManager.v2SecondStartEnraged.value)
-            //    harmonyTweaks.Patch(GetMethod<BossHealthBar>("OnEnable"), postfix: GetHarmonyMethod(GetMethod<V2SecondEnrage>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<V2>("Update"), prefix: GetHarmonyMethod(GetMethod<V2SecondUpdate>("Prefix")));
-            //harmonyTweaks.Patch(GetMethod<V2>("AltShootWeapon"), postfix: GetHarmonyMethod(GetMethod<V2AltShootWeapon>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<V2>("SwitchWeapon"), prefix: GetHarmonyMethod(GetMethod<V2SecondSwitchWeapon>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<V2>("ShootWeapon"), prefix: GetHarmonyMethod(GetMethod<V2SecondShootWeapon>("Prefix")), postfix: GetHarmonyMethod(GetMethod<V2SecondShootWeapon>("Postfix")));
+            //    harmonyTweaks.Patch(Plugin.DoGetMethod<BossHealthBar>("OnEnable"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<V2SecondEnrage>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("Update"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2SecondUpdate>("Prefix")));
+            //harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("AltShootWeapon"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<V2AltShootWeapon>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("SwitchWeapon"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2SecondSwitchWeapon>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("ShootWeapon"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2SecondShootWeapon>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<V2SecondShootWeapon>("Postfix")));
             if(ConfigManager.v2SecondFastCoinToggle.value)
-                harmonyTweaks.Patch(GetMethod<V2>("ThrowCoins"), prefix: GetHarmonyMethod(GetMethod<V2SecondFastCoin>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<Cannonball>("OnTriggerEnter"), prefix: GetHarmonyMethod(GetMethod<V2RocketLauncher>("CannonBallTriggerPrefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("ThrowCoins"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2SecondFastCoin>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Cannonball>("OnTriggerEnter"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2RocketLauncher>("CannonBallTriggerPrefix")));
 
             if (ConfigManager.v2FirstSharpshooterToggle.value || ConfigManager.v2SecondSharpshooterToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<EnemyRevolver>("PrepareAltFire"), prefix: GetHarmonyMethod(GetMethod<V2CommonRevolverPrepareAltFire>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Projectile>("Collided"), prefix: GetHarmonyMethod(GetMethod<V2CommonRevolverBullet>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<EnemyRevolver>("AltFire"), prefix: GetHarmonyMethod(GetMethod<V2CommonRevolverAltShoot>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyRevolver>("PrepareAltFire"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2CommonRevolverPrepareAltFire>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Projectile>("Collided"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2CommonRevolverBullet>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyRevolver>("AltFire"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2CommonRevolverAltShoot>("Prefix")));
             }
 
-            harmonyTweaks.Patch(GetMethod<Drone>("Start"), postfix: GetHarmonyMethod(GetMethod<Virtue_Start_Patch>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<Drone>("SpawnInsignia"), prefix: GetHarmonyMethod(GetMethod<Virtue_SpawnInsignia_Patch>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<Drone>("Death"), prefix: GetHarmonyMethod(GetMethod<Virtue_Death_Patch>("Prefix")));
-
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_Start_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("SpawnInsignia"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_SpawnInsignia_Patch>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Death"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_Death_Patch>("Prefix")));
+            
             if (ConfigManager.sisyInstJumpShockwave.value)
             {
-                harmonyTweaks.Patch(GetMethod<Sisyphus>("Start"), postfix: GetHarmonyMethod(GetMethod<SisyphusInstructionist_Start>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<Sisyphus>("Update"), postfix: GetHarmonyMethod(GetMethod<SisyphusInstructionist_Update>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Sisyphus>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SisyphusInstructionist_Start>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Sisyphus>("Update"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SisyphusInstructionist_Update>("Postfix")));
             }
+            
             if(ConfigManager.sisyInstBoulderShockwave.value)
-                harmonyTweaks.Patch(GetMethod<Sisyphus>("SetupExplosion"), postfix: GetHarmonyMethod(GetMethod<SisyphusInstructionist_SetupExplosion>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Sisyphus>("SetupExplosion"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SisyphusInstructionist_SetupExplosion>("Postfix")));
             if(ConfigManager.sisyInstStrongerExplosion.value)
-                harmonyTweaks.Patch(GetMethod<Sisyphus>("StompExplosion"), prefix: GetHarmonyMethod(GetMethod<SisyphusInstructionist_StompExplosion>("Prefix")));
-
-            harmonyTweaks.Patch(GetMethod<LeviathanTail>("Awake"), postfix: GetHarmonyMethod(GetMethod<LeviathanTail_Start>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<LeviathanTail>("BigSplash"), prefix: GetHarmonyMethod(GetMethod<LeviathanTail_BigSplash>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<LeviathanTail>("SwingEnd"), prefix: GetHarmonyMethod(GetMethod<LeviathanTail_SwingEnd>("Prefix")));
-
-            harmonyTweaks.Patch(GetMethod<LeviathanHead>("Start"), postfix: GetHarmonyMethod(GetMethod<Leviathan_Start>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<LeviathanHead>("ProjectileBurst"), prefix: GetHarmonyMethod(GetMethod<Leviathan_ProjectileBurst>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<LeviathanHead>("ProjectileBurstStart"), prefix: GetHarmonyMethod(GetMethod<Leviathan_ProjectileBurstStart>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<LeviathanHead>("FixedUpdate"), prefix: GetHarmonyMethod(GetMethod<Leviathan_FixedUpdate>("Prefix")));
-
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Sisyphus>("StompExplosion"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SisyphusInstructionist_StompExplosion>("Prefix")));
+            
+            harmonyTweaks.Patch(Plugin.DoGetMethod<LeviathanTail>("Awake"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<LeviathanTail_Start>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<LeviathanTail>("BigSplash"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<LeviathanTail_BigSplash>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<LeviathanTail>("SwingEnd"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<LeviathanTail_SwingEnd>("Prefix")));
+            
+            harmonyTweaks.Patch(Plugin.DoGetMethod<LeviathanHead>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Leviathan_Start>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<LeviathanHead>("ProjectileBurst"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Leviathan_ProjectileBurst>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<LeviathanHead>("ProjectileBurstStart"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Leviathan_ProjectileBurstStart>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<LeviathanHead>("FixedUpdate"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Leviathan_FixedUpdate>("Prefix")));
+            /*
             if (ConfigManager.somethingWickedSpear.value)
             {
-                harmonyTweaks.Patch(GetMethod<Wicked>("Start"), postfix: GetHarmonyMethod(GetMethod<SomethingWicked_Start>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<Wicked>("GetHit"), postfix: GetHarmonyMethod(GetMethod<SomethingWicked_GetHit>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Wicked>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SomethingWicked_Start>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Wicked>("GetHit"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SomethingWicked_GetHit>("Postfix")));
             }
             if(ConfigManager.somethingWickedSpawnOn43.value)
             {
-                harmonyTweaks.Patch(GetMethod<ObjectActivator>("Activate"), prefix: GetHarmonyMethod(GetMethod<ObjectActivator_Activate>("Prefix")));
-            }
-
+                harmonyTweaks.Patch(Plugin.DoGetMethod<ObjectActivator>("Activate"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<ObjectActivator_Activate>("Prefix")));
+            }*/
+            
             if (ConfigManager.panopticonFullPhase.value)
-                harmonyTweaks.Patch(GetMethod<FleshPrison>("Start"), postfix: GetHarmonyMethod(GetMethod<Panopticon_Start>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Panopticon_Start>("Postfix")));
             if (ConfigManager.panopticonAxisBeam.value)
-                harmonyTweaks.Patch(GetMethod<FleshPrison>("SpawnInsignia"), prefix: GetHarmonyMethod(GetMethod<Panopticon_SpawnInsignia>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("SpawnInsignia"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Panopticon_SpawnInsignia>("Prefix")));
             if (ConfigManager.panopticonSpinAttackToggle.value)
-                harmonyTweaks.Patch(GetMethod<FleshPrison>("HomingProjectileAttack"), postfix: GetHarmonyMethod(GetMethod<Panopticon_HomingProjectileAttack>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("HomingProjectileAttack"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Panopticon_HomingProjectileAttack>("Postfix")));
             if (ConfigManager.panopticonBlackholeProj.value)
-                harmonyTweaks.Patch(GetMethod<FleshPrison>("SpawnBlackHole"), postfix: GetHarmonyMethod(GetMethod<Panopticon_SpawnBlackHole>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("SpawnBlackHole"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Panopticon_SpawnBlackHole>("Postfix")));
             if (ConfigManager.panopticonBalanceEyes.value)
-                harmonyTweaks.Patch(GetMethod<FleshPrison>("SpawnFleshDrones"), prefix: GetHarmonyMethod(GetMethod<Panopticon_SpawnFleshDrones>("Prefix")), postfix: GetHarmonyMethod(GetMethod<Panopticon_SpawnFleshDrones>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("SpawnFleshDrones"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Panopticon_SpawnFleshDrones>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Panopticon_SpawnFleshDrones>("Postfix")));
             if (ConfigManager.panopticonBlueProjToggle.value)
-                harmonyTweaks.Patch(GetMethod<FleshPrison>("Update"), transpiler: GetHarmonyMethod(GetMethod<Panopticon_BlueProjectile>("Transpiler")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("Update"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Panopticon_BlueProjectile>("Transpiler")));
 
             if (ConfigManager.idolExplosionToggle.value)
-                harmonyTweaks.Patch(GetMethod<Idol>("Death"), postfix: GetHarmonyMethod(GetMethod<Idol_Death_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Idol>("Death"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Idol_Death_Patch>("Postfix")));
 
             // ADDME
-            /*
-            harmonyTweaks.Patch(GetMethod<GabrielSecond>("Start"), postfix: GetHarmonyMethod(GetMethod<GabrielSecond_Start>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<GabrielSecond>("BasicCombo"), postfix: GetHarmonyMethod(GetMethod<GabrielSecond_BasicCombo>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<GabrielSecond>("FastCombo"), postfix: GetHarmonyMethod(GetMethod<GabrielSecond_FastCombo>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<GabrielSecond>("CombineSwords"), postfix: GetHarmonyMethod(GetMethod<GabrielSecond_CombineSwords>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<GabrielSecond>("ThrowCombo"), postfix: GetHarmonyMethod(GetMethod<GabrielSecond_ThrowCombo>("Postfix")));
-            */
+            
+            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_Start>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("BasicCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_BasicCombo>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("FastCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_FastCombo>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("CombineSwords"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_CombineSwords>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("ThrowCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_ThrowCombo>("Postfix")));
+            
         }
 
         private static void PatchAllPlayers()
         {
-            if (ConfigManager.crossmodSupport_MD.value == true)
+            /*if (ConfigManager.crossmodSupport_MD.value == true)
             {
-                harmonyTweaks.Patch(GetMethod<Explosion>("Start"), prefix: GetHarmonyMethod(GetMethod<CrossmodSupport_MD_SplendorConductor>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<EnemyIdentifier>("Update"), prefix: GetHarmonyMethod(GetMethod<EnemyIdentifier_DeliverDamage_Crossmod>("Prefix")));
-            }
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Start"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<CrossmodSupport_MD_SplendorConductor>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyIdentifier>("Update"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<EnemyIdentifier_DeliverDamage_Crossmod>("Prefix")));
+            }*/
             if (!ConfigManager.playerTweakToggle.value)
                 return;
-            harmonyTweaks.Patch(GetMethod<Punch>("TryParryProjectile"), prefix: GetHarmonyMethod(GetMethod<Punch_TryParryProjectile_Patch>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<Grenade>("Explode"), prefix: GetHarmonyMethod(GetMethod<Grenade_Explode_Patch1>("Prefix")));
-            harmonyTweaks.Patch(GetMethod<Grenade>("Collision"), prefix: GetHarmonyMethod(GetMethod<Grenade_Collision_Patch>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Punch>("TryParryProjectile"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Punch_TryParryProjectile_Patch>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Grenade>("Explode"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Explode_Patch1>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Grenade>("Collision"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Collision_Patch>("Prefix")));
             if (ConfigManager.rocketBoostToggle.value)
-                harmonyTweaks.Patch(GetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(GetMethod<Explosion_Collide_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide_Patch>("Prefix")));
 
             if (ConfigManager.rocketGrabbingToggle.value)
-                harmonyTweaks.Patch(GetMethod<HookArm>("FixedUpdate"), prefix: GetHarmonyMethod(GetMethod<HookArm_FixedUpdate_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<HookArm>("FixedUpdate"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<HookArm_FixedUpdate_Patch>("Prefix")));
 
             if (ConfigManager.orbStrikeToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<Coin>("Start"), postfix: GetHarmonyMethod(GetMethod<Coin_Start>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<Punch>("BlastCheck"), prefix: GetHarmonyMethod(GetMethod<Punch_BlastCheck>("Prefix")), postfix: GetHarmonyMethod(GetMethod<Punch_BlastCheck>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(GetMethod<Explosion_Collide>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Coin>("DelayedReflectRevolver"), postfix: GetHarmonyMethod(GetMethod<Coin_DelayedReflectRevolver>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<Coin>("ReflectRevolver"), postfix: GetHarmonyMethod(GetMethod<Coin_ReflectRevolver>("Postfix")), prefix: GetHarmonyMethod(GetMethod<Coin_ReflectRevolver>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Grenade>("Explode"), prefix: GetHarmonyMethod(GetMethod<Grenade_Explode>("Prefix")), postfix: GetHarmonyMethod(GetMethod<Grenade_Explode>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Coin>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Coin_Start>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Punch>("BlastCheck"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Punch_BlastCheck>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Punch_BlastCheck>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Coin>("DelayedReflectRevolver"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Coin_DelayedReflectRevolver>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Coin>("ReflectRevolver"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Coin_ReflectRevolver>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Coin_ReflectRevolver>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Grenade>("Explode"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Explode>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Explode>("Postfix")));
                 
-                harmonyTweaks.Patch(GetMethod<EnemyIdentifier>("DeliverDamage"), prefix: GetHarmonyMethod(GetMethod<EnemyIdentifier_DeliverDamage>("Prefix")), postfix: GetHarmonyMethod(GetMethod<EnemyIdentifier_DeliverDamage>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<RevolverBeam>("ExecuteHits"), postfix: GetHarmonyMethod(GetMethod<RevolverBeam_ExecuteHits>("Postfix")), prefix: GetHarmonyMethod(GetMethod<RevolverBeam_ExecuteHits>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<RevolverBeam>("HitSomething"), postfix: GetHarmonyMethod(GetMethod<RevolverBeam_HitSomething>("Postfix")), prefix: GetHarmonyMethod(GetMethod<RevolverBeam_HitSomething>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<RevolverBeam>("Start"), prefix: GetHarmonyMethod(GetMethod<RevolverBeam_Start>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Cannonball>("Explode"), prefix: GetHarmonyMethod(GetMethod<Cannonball_Explode>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyIdentifier>("DeliverDamage"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<EnemyIdentifier_DeliverDamage>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<EnemyIdentifier_DeliverDamage>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<RevolverBeam>("ExecuteHits"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<RevolverBeam_ExecuteHits>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<RevolverBeam_ExecuteHits>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<RevolverBeam>("HitSomething"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<RevolverBeam_HitSomething>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<RevolverBeam_HitSomething>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<RevolverBeam>("Start"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<RevolverBeam_Start>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Cannonball>("Explode"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Cannonball_Explode>("Prefix")));
 
-                harmonyTweaks.Patch(GetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(GetMethod<Explosion_CollideOrbital>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_CollideOrbital>("Prefix")));
             }
             
             if(ConfigManager.chargedRevRegSpeedMulti.value != 1)
-                harmonyTweaks.Patch(GetMethod<Revolver>("Update"), prefix: GetHarmonyMethod(GetMethod<Revolver_Update>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Revolver>("Update"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Revolver_Update>("Prefix")));
             if(ConfigManager.coinRegSpeedMulti.value != 1 || ConfigManager.sharpshooterRegSpeedMulti.value != 1
                 || ConfigManager.railcannonRegSpeedMulti.value != 1 || ConfigManager.rocketFreezeRegSpeedMulti.value != 1
                 || ConfigManager.rocketCannonballRegSpeedMulti.value != 1 || ConfigManager.nailgunAmmoRegSpeedMulti.value != 1
                 || ConfigManager.sawAmmoRegSpeedMulti.value != 1)
-                harmonyTweaks.Patch(GetMethod<WeaponCharges>("Charge"), prefix: GetHarmonyMethod(GetMethod<WeaponCharges_Charge>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<WeaponCharges>("Charge"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<WeaponCharges_Charge>("Prefix")));
             if(ConfigManager.nailgunHeatsinkRegSpeedMulti.value != 1 || ConfigManager.sawHeatsinkRegSpeedMulti.value != 1)
-                harmonyTweaks.Patch(GetMethod<Nailgun>("Update"), prefix: GetHarmonyMethod(GetMethod<NailGun_Update>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Nailgun>("Update"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<NailGun_Update>("Prefix")));
             if(ConfigManager.staminaRegSpeedMulti.value != 1)
-                harmonyTweaks.Patch(GetMethod<NewMovement>("Update"), prefix: GetHarmonyMethod(GetMethod<NewMovement_Update>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("Update"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<NewMovement_Update>("Prefix")));
             
             if(ConfigManager.playerHpDeltaToggle.value || ConfigManager.maxPlayerHp.value != 100 || ConfigManager.playerHpSupercharge.value != 200 || ConfigManager.whiplashHardDamageCap.value != 50 || ConfigManager.whiplashHardDamageSpeed.value != 1)
             {
-                harmonyTweaks.Patch(GetMethod<NewMovement>("GetHealth"), prefix: GetHarmonyMethod(GetMethod<NewMovement_GetHealth>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<NewMovement>("SuperCharge"), prefix: GetHarmonyMethod(GetMethod<NewMovement_SuperCharge>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<NewMovement>("Respawn"), postfix: GetHarmonyMethod(GetMethod<NewMovement_Respawn>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<NewMovement>("Start"), postfix: GetHarmonyMethod(GetMethod<NewMovement_Start>("Postfix")));
-                harmonyTweaks.Patch(GetMethod<NewMovement>("GetHurt"), transpiler: GetHarmonyMethod(GetMethod<NewMovement_GetHurt>("Transpiler")));
-                harmonyTweaks.Patch(GetMethod<HookArm>("FixedUpdate"), transpiler: GetHarmonyMethod(GetMethod<HookArm_FixedUpdate>("Transpiler")));
-                harmonyTweaks.Patch(GetMethod<NewMovement>("ForceAntiHP"), transpiler: GetHarmonyMethod(GetMethod<NewMovement_ForceAntiHP>("Transpiler")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("GetHealth"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<NewMovement_GetHealth>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("SuperCharge"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<NewMovement_SuperCharge>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("Respawn"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<NewMovement_Respawn>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<NewMovement_Start>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("GetHurt"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<NewMovement_GetHurt>("Transpiler")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<HookArm>("FixedUpdate"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<HookArm_FixedUpdate>("Transpiler")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("ForceAntiHP"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<NewMovement_ForceAntiHP>("Transpiler")));
             }
 
             // ADDME
-            harmonyTweaks.Patch(GetMethod<Revolver>("Shoot"), transpiler: GetHarmonyMethod(GetMethod<Revolver_Shoot>("Transpiler")));
-            harmonyTweaks.Patch(GetMethod<Shotgun>("Shoot"), transpiler: GetHarmonyMethod(GetMethod<Shotgun_Shoot>("Transpiler")), prefix: GetHarmonyMethod(GetMethod<Shotgun_Shoot>("Prefix")), postfix: GetHarmonyMethod(GetMethod<Shotgun_Shoot>("Postfix")));
-            harmonyTweaks.Patch(GetMethod<Shotgun>("ShootSinks"), transpiler: GetHarmonyMethod(GetMethod<Shotgun_ShootSinks>("Transpiler")));
-            harmonyTweaks.Patch(GetMethod<Nailgun>("Shoot"), transpiler: GetHarmonyMethod(GetMethod<Nailgun_Shoot>("Transpiler")));
-            harmonyTweaks.Patch(GetMethod<Nailgun>("SuperSaw"), transpiler: GetHarmonyMethod(GetMethod<Nailgun_SuperSaw>("Transpiler")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Revolver>("Shoot"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Revolver_Shoot>("Transpiler")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Shotgun>("Shoot"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_Shoot>("Transpiler")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_Shoot>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_Shoot>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Shotgun>("ShootSinks"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_ShootSinks>("Transpiler")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Nailgun>("Shoot"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Nailgun_Shoot>("Transpiler")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Nailgun>("SuperSaw"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Nailgun_SuperSaw>("Transpiler")));
             
             if (ConfigManager.hardDamagePercent.normalizedValue != 1)
-                harmonyTweaks.Patch(GetMethod<NewMovement>("GetHurt"), prefix: GetHarmonyMethod(GetMethod<NewMovement_GetHurt>("Prefix")), postfix: GetHarmonyMethod(GetMethod<NewMovement_GetHurt>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("GetHurt"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<NewMovement_GetHurt>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<NewMovement_GetHurt>("Postfix")));
 
-            harmonyTweaks.Patch(GetMethod<HealthBar>("Start"), postfix: GetHarmonyMethod(GetMethod<HealthBar_Start>("Postfix")));
-			harmonyTweaks.Patch(GetMethod<HealthBar>("Update"), transpiler: GetHarmonyMethod(GetMethod<HealthBar_Update>("Transpiler")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<HealthBar>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<HealthBar_Start>("Postfix")));
+			harmonyTweaks.Patch(Plugin.DoGetMethod<HealthBar>("Update"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<HealthBar_Update>("Transpiler")));
 			foreach (HealthBarTracker hb in HealthBarTracker.instances)
             {
                 if (hb != null)
                     hb.SetSliderRange();
             }
             
-            harmonyTweaks.Patch(GetMethod<Harpoon>("Start"), postfix: GetHarmonyMethod(GetMethod<Harpoon_Start>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Harpoon>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Harpoon_Start>("Postfix")));
             if(ConfigManager.screwDriverHomeToggle.value)
-                harmonyTweaks.Patch(GetMethod<Harpoon>("Punched"), postfix: GetHarmonyMethod(GetMethod<Harpoon_Punched>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Harpoon>("Punched"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Harpoon_Punched>("Postfix")));
             if(ConfigManager.screwDriverSplitToggle.value)
-                harmonyTweaks.Patch(GetMethod<Harpoon>("OnTriggerEnter"), prefix: GetHarmonyMethod(GetMethod<Harpoon_OnTriggerEnter_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Harpoon>("OnTriggerEnter"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Harpoon_OnTriggerEnter_Patch>("Prefix")));
         }
 
         private static void PatchAllMemes()
         {
             if (ConfigManager.enrageSfxToggle.value)
-                harmonyTweaks.Patch(GetMethod<EnrageEffect>("Start"), postfix: GetHarmonyMethod(GetMethod<EnrageEffect_Start>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<EnrageEffect>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<EnrageEffect_Start>("Postfix")));
             
             if(ConfigManager.funnyDruidKnightSFXToggle.value)
             {
-                harmonyTweaks.Patch(GetMethod<Mandalore>("FullBurst"), postfix: GetHarmonyMethod(GetMethod<DruidKnight_FullBurst>("Postfix")), prefix: GetHarmonyMethod(GetMethod<DruidKnight_FullBurst>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Mandalore>("FullerBurst"), prefix: GetHarmonyMethod(GetMethod<DruidKnight_FullerBurst>("Prefix")));
-                harmonyTweaks.Patch(GetMethod<Drone>("Explode"), prefix: GetHarmonyMethod(GetMethod<Drone_Explode>("Prefix")), postfix: GetHarmonyMethod(GetMethod<Drone_Explode>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Mandalore>("FullBurst"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<DruidKnight_FullBurst>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<DruidKnight_FullBurst>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Mandalore>("FullerBurst"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<DruidKnight_FullerBurst>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Explode"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Drone_Explode>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Drone_Explode>("Postfix")));
             }
 
             if (ConfigManager.fleshObamiumToggle.value)
-                harmonyTweaks.Patch(GetMethod<FleshPrison>("Start"), postfix: GetHarmonyMethod(GetMethod<FleshObamium_Start>("Postfix")), prefix: GetHarmonyMethod(GetMethod<FleshObamium_Start>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<FleshObamium_Start>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<FleshObamium_Start>("Prefix")));
             if (ConfigManager.obamapticonToggle.value)
-                harmonyTweaks.Patch(GetMethod<FleshPrison>("Start"), postfix: GetHarmonyMethod(GetMethod<Obamapticon_Start>("Postfix")), prefix: GetHarmonyMethod(GetMethod<Obamapticon_Start>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Obamapticon_Start>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Obamapticon_Start>("Prefix")));
         }
-
+        
         public static bool methodsPatched = false;
         
         public static void ScenePatchCheck()
         {
+
             if(methodsPatched && !ultrapainDifficulty)
             {
                 harmonyTweaks.UnpatchSelf();
@@ -846,11 +852,9 @@ namespace Ultrapain
             if (!ultrapainDifficulty)
                 return;
 
-            
-            if(realUltrapainDifficulty && ConfigManager.discordRichPresenceToggle.value)
-                harmonyTweaks.Patch(GetMethod<DiscordController>("SendActivity"), prefix: GetHarmonyMethod(GetMethod<DiscordController_SendActivity_Patch>("Prefix")));
-            if (realUltrapainDifficulty && ConfigManager.steamRichPresenceToggle.value)
-                harmonyTweaks.Patch(GetMethod<SteamController>("FetchSceneActivity"), postfix: GetHarmonyMethod(GetMethod<SteamController_FetchSceneActivity_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<DiscordController>("SendActivity"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<DiscordController_SendActivity_Patch>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<DiscordController>("FetchSceneActivity"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<DiscordController_FetchSceneActivity_Patch>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<SteamController>("FetchSceneActivity"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SteamController_FetchSceneActivity_Patch>("Prefix")));
 
             PatchAllEnemies();
             PatchAllPlayers();
@@ -930,11 +934,20 @@ namespace Ultrapain
 
             harmonyTweaks = new Harmony(PLUGIN_GUID + "_tweaks");
             harmonyBase = new Harmony(PLUGIN_GUID + "_base");
-            harmonyBase.Patch(GetMethod<DifficultySelectButton>("SetDifficulty"), postfix: GetHarmonyMethod(GetMethod<DifficultySelectPatch>("Postfix")));
-            harmonyBase.Patch(GetMethod<DifficultyTitle>("Check"), postfix: GetHarmonyMethod(GetMethod<DifficultyTitle_Check_Patch>("Postfix")));
-            harmonyBase.Patch(typeof(PrefsManager).GetConstructor(new Type[0]), postfix: GetHarmonyMethod(GetMethod<PrefsManager_Ctor>("Postfix")));
-            harmonyBase.Patch(GetMethod<PrefsManager>("EnsureValid"), prefix: GetHarmonyMethod(GetMethod<PrefsManager_EnsureValid>("Prefix")));
-            harmonyBase.Patch(GetMethod<Grenade>("Explode"), prefix: new HarmonyMethod(GetMethod<GrenadeExplosionOverride>("Prefix")), postfix: new HarmonyMethod(GetMethod<GrenadeExplosionOverride>("Postfix")));
+
+            harmonyBase.Patch(typeof(GameProgressSaver).GetMethod("GetProgress"), prefix: GetHarmonyMethod(typeof(GameProgressSaver_GetProgress_Fix).GetMethod("Prefix")));
+            harmonyBase.Patch(typeof(GameProgressSaver).GetMethod("GetEncoreProgress"), prefix: GetHarmonyMethod(typeof(GameProgressSaver_GetEncoreProgress_Fix).GetMethod("Prefix")));
+            harmonyBase.Patch(typeof(GameProgressSaver).GetMethod("GetPrime"), prefix: GetHarmonyMethod(typeof(GameProgressSaver_GetPrime_Fix).GetMethod("Prefix")));
+
+            harmonyBase.Patch(Plugin.DoGetMethod<DifficultySelectButton>("SetDifficulty"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<DifficultySelectPatch>("Postfix")));
+            harmonyBase.Patch(Plugin.DoGetMethod<DifficultyTitle>("Check"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<DifficultyTitle_Check_Patch>("Prefix")));
+            harmonyBase.Patch(Plugin.DoGetMethod<LevelSelectPanel>("CheckScore"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<LevelSelectPanel_Fix>("Prefix")));
+            harmonyBase.Patch(typeof(PrefsManager).GetConstructor(new Type[0]), postfix: GetHarmonyMethod(Plugin.DoGetMethod<PrefsManager_Ctor>("Postfix")));
+            harmonyBase.Patch(Plugin.DoGetMethod<PrefsManager>("EnsureValid"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<PrefsManager_EnsureValid>("Prefix")));
+            harmonyBase.Patch(Plugin.DoGetMethod<EndlessHighScore>("OnEnable"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<EndlessHighScore_Fix>("Prefix")));
+            harmonyBase.Patch(Plugin.DoGetMethod<Grenade>("Explode"), prefix: new HarmonyMethod(Plugin.DoGetMethod<GrenadeExplosionOverride>("Prefix")), postfix: new HarmonyMethod(Plugin.DoGetMethod<GrenadeExplosionOverride>("Postfix")));
+            harmonyBase.Patch(typeof(RankData).GetConstructor([typeof(StatsManager)]), prefix: GetHarmonyMethod(Plugin.DoGetMethod<RankData_Fix>("Prefix")));
+
             LoadPrefabs();
             ConfigManager.Initialize();
 

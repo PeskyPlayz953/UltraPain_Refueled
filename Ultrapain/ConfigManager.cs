@@ -857,7 +857,7 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
             };
 
             // ROOT PANEL
-            new ConfigHeader(config.rootPanel, "ULTRAPAIN V"+Plugin.PLUGIN_VERSION.ToString());
+            new ConfigHeader(config.rootPanel, "ULTRAPAIN V"+Plugin.PLUGIN_VERSION.ToString()+" b6", 40);
             new ConfigHeader(config.rootPanel, "Enemy Tweaks");
             enemyTweakToggle = new BoolField(config.rootPanel, "Enabled", "enemyTweakToggle", true);
             enemyTweakToggle.presetLoadPriority = 1;
@@ -879,19 +879,6 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
                 dirtyField = true;
             };
             playerTweakToggle.TriggerValueChangeEvent();
-
-            new ConfigHeader(config.rootPanel, "Difficulty Rich Presence Override", 20);
-            discordRichPresenceToggle = new BoolField(config.rootPanel, "Discord rich presence", "discordRichPresenceToggle", false);
-            discordRichPresenceToggle.onValueChange += (BoolField.BoolValueChangeEvent e) =>
-            {
-                dirtyField = true;
-            };
-            steamRichPresenceToggle = new BoolField(config.rootPanel, "Steam rich presence", "steamRichPresenceToggle", false);
-            steamRichPresenceToggle.onValueChange += (BoolField.BoolValueChangeEvent e) =>
-            {
-                dirtyField = true;
-            };
-
             new ConfigHeader(config.rootPanel, "Plugin Difficulty Info");
             pluginName = new StringField(config.rootPanel, "Difficulty name", "pluginName", "ULTRAPAIN");
             pluginName.onValueChange += (StringField.StringValueChangeEvent data) =>
@@ -1996,7 +1983,7 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
             schismSpreadAttackCount = new IntField(schismSpreadAttackDiv, "Projectile count per side", "schismSpreadAttackCount", 2, 0, int.MaxValue);
 
             // SOLIDER
-            new ConfigHeader(soliderPanel, "Coins Ignore Weak Point");
+            new ConfigHeader(soliderPanel, "Coins cannot Interrupt");
             soliderCoinsIgnoreWeakPointToggle = new BoolField(soliderPanel, "Enabled", "soliderCoinsIgnoreWeakPoint", true);
             soliderCoinsIgnoreWeakPointToggle.onValueChange += (BoolField.BoolValueChangeEvent e) =>
             {

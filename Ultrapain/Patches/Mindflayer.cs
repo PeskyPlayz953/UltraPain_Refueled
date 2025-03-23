@@ -121,14 +121,14 @@ namespace Ultrapain.Patches
             if (mf == null)
                 return;
 
-            //MindflayerPatch patch = mf.gameObject.GetComponent<MindflayerPatch>();
+            MindflayerPatch patch = mf.gameObject.GetComponent<MindflayerPatch>();
 
             Debug.Log("Attempting melee combo");
             __instance.DamageStop();
             goForward.SetValue(mf, false);
             meleeAttack.Invoke(mf, new object[] { });
 
-            /*if (patch.swingComboLeft > 0)
+            if (patch.swingComboLeft > 0)
             {
                 patch.swingComboLeft -= 1;
                 __instance.DamageStop();
@@ -136,7 +136,7 @@ namespace Ultrapain.Patches
                 meleeAttack.Invoke(mf, new object[] { });
             }
             else
-                patch.swingComboLeft = 2;*/
+                patch.swingComboLeft = 2;
         }
     }
 

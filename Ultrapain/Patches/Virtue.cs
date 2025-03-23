@@ -108,7 +108,7 @@ namespace Ultrapain.Patches
                 }
                 if (instance.difficulty >= 4)
                 {
-                    component.explosionLength = ((__instance.difficulty == 5) ? 5f : 3.5f)*lastMultiplier;
+                    component.explosionLength = ((__instance.difficulty >= 5) ? 5f : 3.5f)*lastMultiplier;
                 }
                 if (MonoSingleton<PlayerTracker>.Instance.playerType == PlayerType.Platformer)
                 {
@@ -143,6 +143,7 @@ namespace Ultrapain.Patches
                     float size = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaXsize.value : ConfigManager.virtueNormalInsigniaXsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
                     obj.transform.Rotate(new Vector3(90f, 0, 0));
+                    obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 1.01f;
                 }
                 if (yAxis)
                 {
@@ -156,6 +157,7 @@ namespace Ultrapain.Patches
                     float size = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaZsize.value : ConfigManager.virtueNormalInsigniaZsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
                     obj.transform.Rotate(new Vector3(0, 0, 90f));
+                    obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 0.99f;
                 }
             }
             else
@@ -197,7 +199,7 @@ namespace Ultrapain.Patches
             }
 
             ___usedAttacks += 1;
-            if(___usedAttacks == 3)
+            if (___difficulty > 2 && ___usedAttacks > 2)
             {
                 __instance.Invoke("Enrage", 3f / ___eid.totalSpeedModifier);
             }

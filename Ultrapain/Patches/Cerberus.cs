@@ -19,10 +19,6 @@ namespace Ultrapain.Patches
         public void MakeParryable()
         {
             lastParryTime = Time.time;
-            GameObject flash = GameObject.Instantiate(Plugin.parryableFlash, head.transform.position, head.transform.rotation, head);
-            flash.transform.LookAt(CameraController.Instance.transform);
-            flash.transform.position += flash.transform.forward;
-            flash.transform.Rotate(Vector3.up, 90, Space.Self);
         }
     }
 
@@ -38,6 +34,9 @@ namespace Ultrapain.Patches
                 return;
 
             flag.MakeParryable();
+            GameObject gameObject = Object.Instantiate<GameObject>(MonoSingleton<DefaultReferenceManager>.Instance.parryableFlash, __instance.transform.position + Vector3.up * 6f + __instance.transform.forward * 3f, __instance.transform.rotation);
+            gameObject.transform.localScale *= 5f;
+            gameObject.transform.SetParent(__instance.transform, true);
         }
     }
 
@@ -50,6 +49,9 @@ namespace Ultrapain.Patches
                 return;
 
             flag.MakeParryable();
+            GameObject gameObject = Object.Instantiate<GameObject>(MonoSingleton<DefaultReferenceManager>.Instance.parryableFlash, __instance.transform.position + Vector3.up * 6f + __instance.transform.forward * 3f, __instance.transform.rotation);
+            gameObject.transform.localScale *= 5f;
+            gameObject.transform.SetParent(__instance.transform, true);
         }
     }
 
@@ -74,17 +76,46 @@ namespace Ultrapain.Patches
             return true;
         }
     }
-
-    class StatueBoss_StopDash_Patch
+    class StatueBoss_Tackle_Patch
     {
-        public static void Postfix(StatueBoss __instance, ref int ___tackleChance)
+        public static void Postfix(StatueBoss __instance)
         {
-            CerberusFlag flag = __instance.GetComponent<CerberusFlag>();
-            if (flag == null)
-                return;
+            if (Plugin.ultrapainDifficulty)
+            {
+                __instance.extraTackles += 1;
+            }
         }
     }
-
+    class StatueBoss_StopDash_Patch
+    {
+        static bool Prefix(StatueBoss __instance)
+        {
+            __instance.dashPower = 0f;
+            if (__instance.gc.onGround)
+            {
+                __instance.rb.isKinematic = true;
+            }
+            else
+            {
+                __instance.rb.velocity = Vector3.zero;
+            }
+            __instance.damaging = false;
+            __instance.partAud.Stop();
+            __instance.StopDamage();
+            if (__instance.extraTackles > 0)
+            {
+                __instance.dontFall = true;
+                __instance.extraTackles--;
+                __instance.tracking = true;
+                __instance.anim.speed = 0.1f;
+                __instance.anim.Play("Tackle", -1, 0.4f);
+                __instance.Invoke("DelayedTackle", 0.5f / __instance.realSpeedModifier);
+                return false;
+            }
+            __instance.dontFall = false;
+            return false;
+        }
+    }
     class StatueBoss_Start_Patch
     {
         static void Postfix(StatueBoss __instance)
