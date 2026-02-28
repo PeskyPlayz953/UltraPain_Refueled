@@ -17,6 +17,7 @@ using ProjectProphet.Behaviours;
 using HarmonyLib;
 using BepInEx;
 using BepInEx.Logging;
+using TMPro;
 
 namespace Ultrapain
 {
@@ -118,6 +119,94 @@ namespace Ultrapain
         }
     }
 
+    public class FancyButton : CustomConfigField
+    {
+        public Sprite sprite;
+        public Color color;
+        public ConfigField field;
+        public String extraText;
+        public TextMeshProUGUI headerText;
+        public RectTransform headerTextRect;
+        private GameObject currentUI;
+
+        private static FieldInfo f_IntField_currentUi = typeof(IntField).GetField("currentUi", UnityUtils.instanceFlag);
+        private static FieldInfo f_FloatField_currentUi = typeof(FloatField).GetField("currentUi", UnityUtils.instanceFlag);
+        private static FieldInfo f_StringField_currentUi = typeof(StringField).GetField("currentUi", UnityUtils.instanceFlag);
+        private static FieldInfo f_BoolField_currentUi = typeof(BoolField).GetField("currentUi", UnityUtils.instanceFlag);
+
+        private const float textAnchorX = 40f;
+        private const float fieldAnchorX = 230f;
+        private const float fieldAnchorY = -30f;
+        private const float fieldSizeX = 270f;
+
+        public FancyButton(ConfigField field, Color color, String extraText) : base(field.parentPanel, 0, 0)
+        {
+            this.field = field;
+            this.color = color;
+            this.extraText = extraText;
+        }
+
+        private void SetSize()
+        {
+
+            float horizontalLength = sprite == null ? 100f : sprite.rect.width * (40f / sprite.rect.height);
+
+            Text txt = currentUI.GetComponentInChildren<Text>();
+            InputField input = currentUI.GetComponentInChildren<InputField>();
+            RectTransform inputRect = input.GetComponent<RectTransform>();
+
+            float deltaPos = horizontalLength - 20f;
+            if (deltaPos > 0)
+            {
+                txt.GetComponent<RectTransform>().anchoredPosition = new Vector2(textAnchorX + deltaPos, 0);
+                inputRect.anchoredPosition = new Vector2(fieldAnchorX + deltaPos, fieldAnchorY);
+                inputRect.sizeDelta = new Vector2(fieldSizeX - deltaPos, inputRect.sizeDelta.y);
+            }
+            else
+            {
+                txt.GetComponent<RectTransform>().anchoredPosition = new Vector2(textAnchorX, 0);
+                inputRect.anchoredPosition = new Vector2(fieldAnchorX, fieldAnchorY);
+                inputRect.sizeDelta = new Vector2(fieldSizeX, inputRect.sizeDelta.y);
+            }
+        }
+
+        protected override void OnCreateUI(RectTransform fieldUI)
+        {
+            GameObject.Destroy(fieldUI.gameObject);
+
+            GameObject ui = null;
+            if (field is IntField intField)
+                ui = (GameObject)f_IntField_currentUi.GetValue(intField);
+            else if (field is FloatField floatField)
+                ui = (GameObject)f_FloatField_currentUi.GetValue(floatField);
+            else if (field is StringField stringField)
+                ui = (GameObject)f_StringField_currentUi.GetValue(stringField);
+            else if (field is StringField boolField)
+                ui = (GameObject)f_BoolField_currentUi.GetValue(boolField);
+            else
+                throw new Exception("Image field expected given field to be int, float or string field");
+
+            currentUI = ui;
+
+            if (ui == null)
+            {
+                Debug.LogWarning("Could not find float field ui");
+                return;
+            }
+
+            GameObject text = new GameObject();
+            RectTransform headerTextRect = text.AddComponent<RectTransform>();
+            TextMeshProUGUI headerText = text.AddComponent<TextMeshProUGUI>();
+            headerTextRect.SetParent(ui.transform);
+            headerTextRect.localScale = Vector3.one;
+            headerTextRect.pivot = new Vector2(0f, 0.5f);
+            headerTextRect.anchorMax = headerTextRect.anchorMin = new Vector2(0f, 0.2f);
+            headerText.text = this.extraText;
+
+            SetSize();
+        }
+    }
+
     // Separates fields by a small space
     public class SpaceField : CustomConfigField
     {
@@ -182,17 +271,19 @@ namespace Ultrapain
         public static BoolField steamRichPresenceToggle;
         public static StringField pluginName;
         public static string pluginInfo =
-				@"<color=white>Enemies are changed heavily to be more aggressive and your moveset is expanded.</color>
+                @"<color=white>Enemies are changed heavily to be more aggressive and your moveset is expanded.</color>
 
 <b>Almost any mistake is lethal. Have fun!</b><color=orange>
 
 Intended for players who have perfected BRUTAL difficulty.
 
 </color><color=#666666><i>
+v1.1.2 NOTE: Difficulty 6 data might be unstable. Providence has AI changes, but no config manager.
 v1.1.1 NOTE: No longer uses UKMD Save data, now uses Difficulty 6 save data.
 V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color></i>";
         public static BoolField globalDifficultySwitch;
         public static ConfigPanel memePanel;
+        public static ConfigPanel legacyPanel;
 
         // MEME PANEL
         public static BoolField enrageSfxToggle;
@@ -201,6 +292,15 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
         public static StringField fleshObamiumName;
         public static BoolField obamapticonToggle;
         public static StringField obamapticonName;
+
+        // LEGACY PANEL
+
+        public static BoolField violenceDowngrade;
+        public static ConfigHeader violenceDowngrade_description;
+        public static BoolField lesserArsenal;
+        public static ConfigHeader lesserArsenal_description;
+        public static BoolField brutalStatStacking;
+        public static ConfigHeader brutalStatStacking_description;
 
         // PLAYER PANEL
 
@@ -406,6 +506,7 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
         public static ConfigPanel somethingWickedPanel;
         public static ConfigPanel panopticonPanel;
         public static ConfigPanel idolPanel;
+        public static ConfigPanel providencePanel;
 
         // GLOBAL ENEMY CONFIG
         public static BoolField friendlyFireDamageOverrideToggle;
@@ -619,6 +720,7 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
         public static BoolField schismSpreadAttackToggle;
         public static FloatSliderField schismSpreadAttackAngle;
         public static IntField schismSpreadAttackCount;
+        public static BoolField schismSpreadAttackDevampToggle;
 
         // SOLIDER
         public static BoolField soliderCoinsIgnoreWeakPointToggle;
@@ -837,6 +939,9 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
         public static BoolField gabriSecondP1Chaos;
         public static IntField gabriSecondP1ChaosCount;
 
+        //PROVIDENCE
+        public static BoolField providenceRandomPattern;
+
         private static bool dirtyField = false;
         public static void Initialize()
         {
@@ -857,9 +962,8 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
             };
 
             // ROOT PANEL
-            new ConfigHeader(config.rootPanel, "ULTRAPAIN V"+Plugin.PLUGIN_VERSION.ToString()+" b6", 40);
-            new ConfigHeader(config.rootPanel, "Enemy Tweaks");
-            enemyTweakToggle = new BoolField(config.rootPanel, "Enabled", "enemyTweakToggle", true);
+            new ConfigHeader(config.rootPanel, "ULTRAPAIN V"+Plugin.PLUGIN_VERSION.ToString()+" b1", 40);
+            enemyTweakToggle = new BoolField(config.rootPanel, "Section Enabled", "enemyTweakToggle", true);
             enemyTweakToggle.presetLoadPriority = 1;
             enemyPanel = new ConfigPanel(config.rootPanel, "Enemy Tweaks", "enemyTweakPanel");
             enemyTweakToggle.onValueChange += (BoolField.BoolValueChangeEvent data) =>
@@ -899,7 +1003,6 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
             {
                 dirtyField = true;
             };
-            new ConfigHeader(config.rootPanel, "Crossmod Support (Out of Order)");
             //crossmodSupport_MD = new BoolField(config.rootPanel, "Masquerade Divinity Tech", "crossmodSupport_MD", true);
             //crossmodSupport_SM = new BoolField(config.rootPanel, "Straymode Tech", "crossmodSupport_SM", true);
             /*if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("maranara_project_prophet"))
@@ -929,6 +1032,7 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
 
             new ConfigHeader(config.rootPanel, "Extras");
             memePanel = new ConfigPanel(config.rootPanel, "Memes", "memePanel");
+            legacyPanel = new ConfigPanel(config.rootPanel, "Legacy Options", "legacyPanel");
 
             new ConfigHeader(config.rootPanel, "Danger Zone");
             ButtonField addMissingDefaultPresets = new ButtonField(config.rootPanel, "Add missing default presets", "addMissingDefaultPresets");
@@ -957,6 +1061,33 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
                 dirtyField = true;
             };
             obamapticonName = new StringField(memePanel, "OBAMAPTICON name", "obamapticonName", "OBAMAPTICON");
+
+            // LEGACY PANEL
+
+            new ConfigSpace(legacyPanel, 10);
+            new ConfigHeader(legacyPanel, "Legacy Options Panel", 40, TMPro.TextAlignmentOptions.Center);
+            new ConfigHeader(legacyPanel, "-------------------------------------------------------------------------------", 12, TMPro.TextAlignmentOptions.Center).interactable = false;
+            violenceDowngrade = new BoolField(legacyPanel, "Violence Update Downgrade", "violenceDowngrade", false);
+            violenceDowngrade.onValueChange += (BoolField.BoolValueChangeEvent e) =>
+            {
+                dirtyField = true;
+            };
+            violenceDowngrade_description = new ConfigHeader(legacyPanel, "This option refers to major gameplay changes made during the VIOLENCE Layer update, most notably the change to parry windows. By default this is set to OFF", 12, TMPro.TextAlignmentOptions.MidlineLeft);
+            new ConfigHeader(legacyPanel, "-------------------------------------------------------------------------------", 12, TMPro.TextAlignmentOptions.Center).interactable = false;
+            lesserArsenal = new BoolField(legacyPanel, "Full Arsenal Downgrade", "lesserArsenal", false);
+            lesserArsenal.interactable = false;
+            lesserArsenal.onValueChange += (BoolField.BoolValueChangeEvent e) =>
+            {
+                dirtyField = true;
+            };
+            lesserArsenal_description = new ConfigHeader(legacyPanel, "This option refers to major gameplay changes made during the Full Arsenal update, removing your ability to access newer mechanics and weapons, including Conductor mechanics, The Impact Hammer, Firestarter, Sawed-On, and Jumpstart weapons. By default this is set to OFF", 12, TMPro.TextAlignmentOptions.MidlineLeft);
+            new ConfigHeader(legacyPanel, "-------------------------------------------------------------------------------", 12, TMPro.TextAlignmentOptions.Center).interactable = false;
+            brutalStatStacking = new BoolField(legacyPanel, "Brutal Stat Changes", "brutalStatStacking", false);
+            brutalStatStacking.onValueChange += (BoolField.BoolValueChangeEvent e) =>
+            {
+                dirtyField = true;
+            };
+            brutalStatStacking_description = new ConfigHeader(legacyPanel, "This option refers to the activation of buffs to speed and health that BRUTAL gives. ULTRAPAIN and its difficulties inherit from lower difficulties automatically, but this also includes the stat multipliers from BRUTAL difficulty. By default this is set to OFF", 12, TMPro.TextAlignmentOptions.MidlineLeft);
 
             // PLAYER PANEL
 
@@ -1564,9 +1695,12 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
             minosPrimePanel.icon = Plugin.LoadObject<Sprite>("Assets/Textures/UI/Spawn Menu/MinosPrime.png");
 			panopticonPanel = new ConfigPanel(enemyPanel, "Flesh Panopticon", "panopticonPanel", ConfigPanel.PanelFieldType.StandardWithIcon);
             panopticonPanel.icon = Plugin.LoadObject<Sprite>("Assets/Textures/UI/Spawn Menu/FleshPanopticon.png");
+            new ConfigHeader(enemyPanel, "INDEV - Layer 7+");
+            providencePanel = new ConfigPanel(enemyPanel, "Providence", "providencePanel", ConfigPanel.PanelFieldType.StandardWithIcon);
+            providencePanel.icon = Plugin.LoadObject<Sprite>("Assets/Textures/UI/Spawn Menu/Providence.png");
 
-			// GLOBAL ENEMY TWEAKS
-			eidStatEditorPanel = new ConfigPanel(globalEnemyPanel, "Enemy stat editor", "eidStatEditorPanel");
+            // GLOBAL ENEMY TWEAKS
+            eidStatEditorPanel = new ConfigPanel(globalEnemyPanel, "Enemy stat editor", "eidStatEditorPanel");
 
             eidStatEditorSelector = new EnumField<EnemyType>(eidStatEditorPanel, "Selected enemy", "eidStatEditorSelector", EnemyType.Filth);
             eidStatEditorSelector.SetEnumDisplayName(EnemyType.V2Second, "V2 Second");
@@ -1981,6 +2115,15 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
             schismSpreadAttackToggle.TriggerValueChangeEvent();
             schismSpreadAttackAngle = new FloatSliderField(schismSpreadAttackDiv, "Angular spread", "schismSpreadAttackAngle", new System.Tuple<float, float>(0, 360), 30, 1);
             schismSpreadAttackCount = new IntField(schismSpreadAttackDiv, "Projectile count per side", "schismSpreadAttackCount", 2, 0, int.MaxValue);
+            //schismSpreadAttackDevampToggle = new BoolField(schismPanel, "Disabled", "schismSpreadAttackToggle", true);
+            //schismSpreadAttackDevampToggle.presetLoadPriority = 1;
+            //ConfigDivision schismSpreadAttackDevamp = new ConfigDivision(schismPanel, "schismSpreadAttackDevamp");
+            //schismSpreadAttackDevampToggle.onValueChange += (BoolField.BoolValueChangeEvent e) =>
+            //{
+            //    schismSpreadAttackDevamp.interactable = e.value;
+            //    dirtyField = true;
+            //};
+            //Legacy options.
 
             // SOLIDER
             new ConfigHeader(soliderPanel, "Coins cannot Interrupt");
@@ -2670,6 +2813,9 @@ V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color>
             };
             idolExplodionType.TriggerValueChangeEvent();
             idolExplosionEnemyDamagePercent = new FloatSliderField(idolExplosionDiv, "Enemy damage percent", "idolExplosionEnemyDamagePercent", new Tuple<float, float>(0f, 100f), 0f, 1);
+
+            new ConfigHeader(providencePanel, "Beam Pattern");
+            providenceRandomPattern = new BoolField(providencePanel, "8-Way Random Pattern", "providenceRandomPattern", true);
 
             config.Flush();
             //config.LogDuplicateGUID();

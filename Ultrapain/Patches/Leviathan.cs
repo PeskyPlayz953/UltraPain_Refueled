@@ -457,7 +457,7 @@ namespace Ultrapain.Patches
         static bool Prefix(LeviathanTail __instance, Animator ___anim)
         {
             LeviathanTail_Flag flag = __instance.gameObject.GetComponent<LeviathanTail_Flag>();
-            if (flag == null)
+            if ((flag == null) || (__instance.lcon.eid.dead))
                 return true;
 
             flag.swingCount -= 1;

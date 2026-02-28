@@ -43,7 +43,7 @@ namespace Ultrapain.Patches
         {
             LightningStrikeExplosive lightningStrikeExplosive = Instantiate(Plugin.lightningStrikeExplosiveSetup.gameObject, windupObj.transform.position, Quaternion.identity).GetComponent<LightningStrikeExplosive>();
             lightningStrikeExplosive.safeForPlayer = false;
-            lightningStrikeExplosive.damageMultiplier = eid.totalDamageModifier * ((virtue.enraged)? ConfigManager.virtueEnragedLightningDamage.value : ConfigManager.virtueNormalLightningDamage.value);
+            lightningStrikeExplosive.damageMultiplier = eid.totalDamageModifier * ((virtue.isEnraged)? ConfigManager.virtueEnragedLightningDamage.value : ConfigManager.virtueNormalLightningDamage.value);
             
             if(windupObj != null)
                 Destroy(windupObj.gameObject);
@@ -95,14 +95,14 @@ namespace Ultrapain.Patches
 
                 return gameObject;*/
 
-                instance.parryable = false;
+                instance.enemy.parryable = false;
                 GameObject gameObject = Object.Instantiate<GameObject>(instance.projectile.ToAsset(), target.position, Quaternion.identity);
                 VirtueInsignia component = gameObject.GetComponent<VirtueInsignia>();
                 component.target = target;
                 component.parentDrone = __instance;
                 component.hadParent = true;
                 instance.chargeParticle.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
-                if (instance.enraged)
+                if (instance.isEnraged)
                 {
                     component.predictive = true;
                 }
@@ -122,39 +122,39 @@ namespace Ultrapain.Patches
                 return gameObject;
             }
 
-            if (__instance.enraged && !ConfigManager.virtueTweakEnragedAttackToggle.value)
+            if (__instance.isEnraged && !ConfigManager.virtueTweakEnragedAttackToggle.value)
                 return true;
-            if (!__instance.enraged && !ConfigManager.virtueTweakNormalAttackToggle.value)
+            if (!__instance.isEnraged && !ConfigManager.virtueTweakNormalAttackToggle.value)
                 return true;
 
-            bool insignia = (__instance.enraged) ? ConfigManager.virtueEnragedAttackType.value == ConfigManager.VirtueAttackType.Insignia
+            bool insignia = (__instance.isEnraged) ? ConfigManager.virtueEnragedAttackType.value == ConfigManager.VirtueAttackType.Insignia
                 : ConfigManager.virtueNormalAttackType.value == ConfigManager.VirtueAttackType.Insignia;
 
             if (insignia)
             {
-                bool xAxis = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaXtoggle.value : ConfigManager.virtueNormalInsigniaXtoggle.value;
-                bool yAxis = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaYtoggle.value : ConfigManager.virtueNormalInsigniaYtoggle.value;
-                bool zAxis = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaZtoggle.value : ConfigManager.virtueNormalInsigniaZtoggle.value;
-                int damage = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaXdamage.value : ConfigManager.virtueNormalInsigniaXdamage.value;
-                float lastingmulti = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaLastMulti.value : ConfigManager.virtueNormalInsigniaLastMulti.value;
+                bool xAxis = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaXtoggle.value : ConfigManager.virtueNormalInsigniaXtoggle.value;
+                bool yAxis = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaYtoggle.value : ConfigManager.virtueNormalInsigniaYtoggle.value;
+                bool zAxis = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaZtoggle.value : ConfigManager.virtueNormalInsigniaZtoggle.value;
+                int damage = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaXdamage.value : ConfigManager.virtueNormalInsigniaXdamage.value;
+                float lastingmulti = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaLastMulti.value : ConfigManager.virtueNormalInsigniaLastMulti.value;
                 if (xAxis)
                 {
-                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.target, damage, lastingmulti);
-                    float size = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaXsize.value : ConfigManager.virtueNormalInsigniaXsize.value;
+                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, damage, lastingmulti);
+                    float size = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaXsize.value : ConfigManager.virtueNormalInsigniaXsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
                     obj.transform.Rotate(new Vector3(90f, 0, 0));
                     obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 1.01f;
                 }
                 if (yAxis)
                 {
-                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.target, damage, lastingmulti);
-                    float size = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaYsize.value : ConfigManager.virtueNormalInsigniaYsize.value;
+                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, damage, lastingmulti);
+                    float size = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaYsize.value : ConfigManager.virtueNormalInsigniaYsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
                 }
                 if (zAxis)
                 {
-                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.target, damage, lastingmulti);
-                    float size = (__instance.enraged) ? ConfigManager.virtueEnragedInsigniaZsize.value : ConfigManager.virtueNormalInsigniaZsize.value;
+                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, damage, lastingmulti);
+                    float size = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaZsize.value : ConfigManager.virtueNormalInsigniaZsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
                     obj.transform.Rotate(new Vector3(0, 0, 90f));
                     obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 0.99f;
@@ -195,7 +195,7 @@ namespace Ultrapain.Patches
                 VirtueFlag flag = __instance.GetComponent<VirtueFlag>();
                 flag.lighningBoltSFX.Play();
                 flag.windupObj = currentWindup.transform;
-                flag.Invoke("SpawnLightningBolt", (__instance.enraged)? ConfigManager.virtueEnragedLightningDelay.value : ConfigManager.virtueNormalLightningDelay.value);
+                flag.Invoke("SpawnLightningBolt", (__instance.isEnraged)? ConfigManager.virtueEnragedLightningDelay.value : ConfigManager.virtueNormalLightningDelay.value);
             }
 
             ___usedAttacks += 1;

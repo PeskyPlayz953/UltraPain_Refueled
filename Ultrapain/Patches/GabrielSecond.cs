@@ -37,7 +37,7 @@ namespace Ultrapain.Patches
             if (UnityEngine.Random.Range(0, 100) <= teleportChance)
             {
                 Debug.Log("Attemted teleport");
-                comp.Teleport(false, false, true, false, false);
+                comp.gabe.Teleport(false, false, true, false, false);
                 teleported = true;
             }
 
@@ -52,10 +52,10 @@ namespace Ultrapain.Patches
                     break;
 
                 case 2:
-                    if (!comp.secondPhase && !teleported)
+                    if (!comp.gabe.secondPhase && !teleported)
                     {
                         Debug.Log("Attemted sword throw teleport");
-                        comp.Teleport(false, false, true, false, false);
+                        comp.gabe.Teleport(false, false, true, false, false);
                     }
                     CombineSwords.Invoke(comp, new object[0]);
                     break;

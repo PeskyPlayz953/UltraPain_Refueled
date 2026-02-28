@@ -64,6 +64,81 @@ namespace Ultrapain.Patches
         }
     }
 
+    public class ZombieProjectile_GetSpeed_Patch
+    {
+        static bool Prefix(ZombieProjectiles __instance, ref EnemyMovementData __result)
+        {
+            float num;
+            if (__instance.eid.enemyType == EnemyType.Soldier)
+            {
+                switch (__instance.difficulty)
+                {
+                    case 0:
+                        num = 7.5f;
+                        break;
+                    case 1:
+                        num = 11.25f;
+                        break;
+                    case 2:
+                        num = 15f;
+                        break;
+                    case 3:
+                        num = 18.75f;
+                        break;
+                    case 4:
+                        num = 26.25f;
+                        break;
+                    case 5:
+                        num = 30f;
+                        break;
+                    default:
+                        num = 30f;
+                        break;
+                }
+                float speed = num;
+                __result = new EnemyMovementData
+                {
+                    speed = speed,
+                    angularSpeed = 480f,
+                    acceleration = 480f
+                };
+            }
+            if (__instance.difficulty < 4)
+            {
+                switch (__instance.difficulty)
+                {
+                    case 0:
+                        num = 5f;
+                        break;
+                    case 1:
+                        num = 7.5f;
+                        break;
+                    case 2:
+                        num = 10f;
+                        break;
+                    case 3:
+                        num = 12.5f;
+                        break;
+                    default:
+                        num = 12.5f;
+                        break;
+                }
+            }
+            else
+            {
+                num = 15f;
+            }
+            float speed2 = num;
+            __result = new EnemyMovementData
+            {
+                speed = speed2,
+                angularSpeed = 800f,
+                acceleration = 30f
+            };
+            return false;
+        }
+    }
+
     public class ZombieProjectile_ThrowProjectile_Patch
     {
         public static float normalizedTime = 0f;
@@ -120,7 +195,7 @@ namespace Ultrapain.Patches
                 {
                     flag.inCombo = true;
                     __instance.swinging = true;
-                    __instance.seekingPlayer = false;
+                    __instance.isWandering = false;
                     ___nma.updateRotation = false;
                     flag.lastSpeed = ___anim.speed;
                     //___anim.Play("ThrowProjectile", 0, ZombieProjectile_ThrowProjectile_Patch.normalizedTime);

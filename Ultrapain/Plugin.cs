@@ -35,7 +35,7 @@ namespace Ultrapain
         //Keeping GUID for compatibility with AngryLevelLoader
         public const string PLUGIN_GUID = "com.eternalUnion.ultraPain";
         public const string PLUGIN_NAME = "ULTRAPAIN: REFUELED";
-        public const string PLUGIN_VERSION = "1.1.1";
+        public const string PLUGIN_VERSION = "1.1.3";
 
         public static Plugin instance;
 
@@ -498,6 +498,12 @@ namespace Ultrapain
             if (!ConfigManager.enemyTweakToggle.value)
                 return;
 
+            //New Condition-At-Runtime enemy patches
+            harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyIdentifier>("DeliverDamage"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<LegacyChanges_AddBrutalStacking>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("Update"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<LegacyChanges_RemoveViolenceFeatures>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("GetSpeed"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<ZombieProjectile_GetSpeed_Patch>("Prefix")));
+
+
             if (ConfigManager.friendlyFireDamageOverrideToggle.value)
             {
                 harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide_FF>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide_FF>("Postfix")));
@@ -658,18 +664,19 @@ namespace Ultrapain
             if(ConfigManager.v2SecondFastCoinToggle.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<V2>("ThrowCoins"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2SecondFastCoin>("Prefix")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<Cannonball>("OnTriggerEnter"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2RocketLauncher>("CannonBallTriggerPrefix")));
-
+            
             if (ConfigManager.v2FirstSharpshooterToggle.value || ConfigManager.v2SecondSharpshooterToggle.value)
             {
                 harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyRevolver>("PrepareAltFire"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2CommonRevolverPrepareAltFire>("Prefix")));
                 harmonyTweaks.Patch(Plugin.DoGetMethod<Projectile>("Collided"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2CommonRevolverBullet>("Prefix")));
                 harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyRevolver>("AltFire"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<V2CommonRevolverAltShoot>("Prefix")));
             }
-
-            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_Start_Patch>("Postfix")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("SpawnInsignia"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_SpawnInsignia_Patch>("Prefix")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Death"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_Death_Patch>("Prefix")));
             
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_Start_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("SpawnDroneInsignia"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_SpawnInsignia_Patch>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Death"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_Death_Patch>("Prefix")));
+           
+
             if (ConfigManager.sisyInstJumpShockwave.value)
             {
                 harmonyTweaks.Patch(Plugin.DoGetMethod<Sisyphus>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SisyphusInstructionist_Start>("Postfix")));
@@ -699,7 +706,8 @@ namespace Ultrapain
             {
                 harmonyTweaks.Patch(Plugin.DoGetMethod<ObjectActivator>("Activate"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<ObjectActivator_Activate>("Prefix")));
             }*/
-            
+
+
             if (ConfigManager.panopticonFullPhase.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Panopticon_Start>("Postfix")));
             if (ConfigManager.panopticonAxisBeam.value)
@@ -713,16 +721,19 @@ namespace Ultrapain
             if (ConfigManager.panopticonBlueProjToggle.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("Update"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Panopticon_BlueProjectile>("Transpiler")));
 
+
             if (ConfigManager.idolExplosionToggle.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<Idol>("Death"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Idol_Death_Patch>("Postfix")));
+            if (ConfigManager.providenceRandomPattern.value)
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Shoot"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Providence_CrossPatch>("Prefix")));
 
             // ADDME
-            
-            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_Start>("Postfix")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("BasicCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_BasicCombo>("Postfix")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("FastCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_FastCombo>("Postfix")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("CombineSwords"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_CombineSwords>("Postfix")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("ThrowCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_ThrowCombo>("Postfix")));
+
+            //harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_Start>("Postfix")));
+            //harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("BasicCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_BasicCombo>("Postfix")));
+            //harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("FastCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_FastCombo>("Postfix")));
+            //harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("CombineSwords"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_CombineSwords>("Postfix")));
+            //harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("ThrowCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_ThrowCombo>("Postfix")));
             
         }
 
@@ -737,13 +748,14 @@ namespace Ultrapain
                 return;
             harmonyTweaks.Patch(Plugin.DoGetMethod<Punch>("TryParryProjectile"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Punch_TryParryProjectile_Patch>("Prefix")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<Grenade>("Explode"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Explode_Patch1>("Prefix")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<Grenade>("Collision"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Collision_Patch>("Prefix")));
+            Type[] types = [typeof(Collider)];
+            harmonyTweaks.Patch(typeof(Grenade).GetMethod("Collision", types), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Collision_Patch>("Prefix")));
             if (ConfigManager.rocketBoostToggle.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide_Patch>("Prefix")));
 
             if (ConfigManager.rocketGrabbingToggle.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<HookArm>("FixedUpdate"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<HookArm_FixedUpdate_Patch>("Prefix")));
-
+            
             if (ConfigManager.orbStrikeToggle.value)
             {
                 harmonyTweaks.Patch(Plugin.DoGetMethod<Coin>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Coin_Start>("Postfix")));
@@ -931,6 +943,7 @@ namespace Ultrapain
 
             // Plugin startup logic 
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+            Logger.LogInfo("ULTRAPAIN: REFUELED is very early in proper development! Beware of bugs!");
 
             harmonyTweaks = new Harmony(PLUGIN_GUID + "_tweaks");
             harmonyBase = new Harmony(PLUGIN_GUID + "_base");

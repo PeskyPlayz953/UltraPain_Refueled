@@ -18,7 +18,7 @@ namespace Ultrapain.Patches
 
     class TurretShoot
     {
-        static bool Prefix(Turret __instance, ref EnemyIdentifier ___eid, ref RevolverBeam ___beam, ref Transform ___shootPoint,
+        static bool Prefix(Turret __instance, ref EnemyIdentifier ___eid, ref RevolverBeam ___beam,
             ref float ___aimTime, ref float ___maxAimTime, ref float ___nextBeepTime, ref float ___flashTime)
         {
             TurretFlag flag = __instance.GetComponent<TurretFlag>();
@@ -27,8 +27,8 @@ namespace Ultrapain.Patches
 
             if (flag.shootCountRemaining > 0)
             {
-                RevolverBeam revolverBeam = GameObject.Instantiate<RevolverBeam>(___beam, new Vector3(__instance.transform.position.x, ___shootPoint.transform.position.y, __instance.transform.position.z), ___shootPoint.transform.rotation);
-                revolverBeam.alternateStartPoint = ___shootPoint.transform.position;
+                RevolverBeam revolverBeam = GameObject.Instantiate<RevolverBeam>(___beam, new Vector3(__instance.transform.position.x, ___eid.target.targetTransform.position.y, __instance.transform.position.z), ___eid.target.targetTransform.transform.rotation);
+                revolverBeam.alternateStartPoint = ___eid.target.targetTransform.transform.position;
                 RevolverBeam revolverBeam2;
                 if (___eid.totalDamageModifier != 1f && revolverBeam.TryGetComponent<RevolverBeam>(out revolverBeam2))
                 {

@@ -408,7 +408,7 @@ namespace Ultrapain.Patches
         static MethodInfo m_Nailgun_Shoot_ModifyNail = typeof(Nailgun_Shoot).GetMethod("ModifyNail", UnityUtils.staticFlag);
         static MethodInfo m_Transform_set_forward = typeof(Transform).GetProperty("forward", UnityUtils.instanceFlag).GetSetMethod();
 
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        /*static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> code = new List<CodeInstruction>(instructions);
 
@@ -448,7 +448,7 @@ namespace Ultrapain.Patches
             code.Insert(insertIndex, new CodeInstruction(OpCodes.Call, m_Nailgun_Shoot_ModifyNail));
 
             return code.AsEnumerable();
-        }
+        }*/
     }
 
     class Nailgun_SuperSaw

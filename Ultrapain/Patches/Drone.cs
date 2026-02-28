@@ -255,6 +255,11 @@ namespace Ultrapain.Patches
     {
         static bool Prefix(Drone __instance, EnemyIdentifier ___eid)
         {
+            if (___eid.enemyType == EnemyType.Providence)
+            {
+                __instance.Explode();
+                return true;
+            }
             if (___eid.enemyType != EnemyType.Drone || __instance.crashing)
                 return true;
 

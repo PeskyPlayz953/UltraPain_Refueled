@@ -96,7 +96,7 @@ namespace Ultrapain.Patches
             rb.velocity = Vector3.zero;
             rb.AddForce(rocket.transform.forward * 100f);
         }
-        public void Fire()
+        public void Fire(bool instantExplode = false)
         {
             GameObject rocket = Instantiate<GameObject>(Plugin.rocket, shootPoint.transform.position, shootPoint.transform.rotation);
             rocket.transform.position = new Vector3(rocket.transform.position.x, v2collider.bounds.center.y, rocket.transform.position.z);
@@ -119,7 +119,7 @@ namespace Ultrapain.Patches
             altFireCharging = true;
         }
 
-        public void AltFire()
+        public void AltFire(bool instantExplode = false)
         {
             altFireCharging = false;
             altFireCharge = 0;
@@ -400,7 +400,7 @@ namespace Ultrapain.Patches
             Rigidbody rigidbody;
             if (gameObject.TryGetComponent<Rigidbody>(out rigidbody))
             {
-                rigidbody.AddForce((PlayerTracker.instance.GetTarget().position - ___anim.transform.position).normalized * 20f + Vector3.up * 30f, ForceMode.VelocityChange);
+                rigidbody.AddForce((__instance.eid.target.position - ___anim.transform.position).normalized * 20f + Vector3.up * 30f, ForceMode.VelocityChange);
             }
             Coin coin;
             if (gameObject.TryGetComponent<Coin>(out coin))
