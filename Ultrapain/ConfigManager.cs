@@ -278,9 +278,7 @@ namespace Ultrapain
 Intended for players who have perfected BRUTAL difficulty.
 
 </color><color=#666666><i>
-v1.1.2 NOTE: Difficulty 6 data might be unstable. Providence has AI changes, but no config manager.
-v1.1.1 NOTE: No longer uses UKMD Save data, now uses Difficulty 6 save data.
-V1.1.0 NOTE: ULTRAPAIN does not currently change VIOLENCE layer enemies.</color></i>";
+Still missing Violence layer enemies, but has AI for Providence. General code stability varies drastically.</color></i>";
         public static BoolField globalDifficultySwitch;
         public static ConfigPanel memePanel;
         public static ConfigPanel legacyPanel;

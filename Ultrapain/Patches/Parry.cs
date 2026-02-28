@@ -152,14 +152,14 @@ namespace Ultrapain.Patches
     {
         static float lastTime = 0;
 
-        static bool Prefix(Grenade __instance, ref Collider other)
+        static bool Prefix(Grenade __instance, ref Collider other, ref Vector3 velocity)
         {
             GrenadeParriedFlag flag = __instance.GetComponent<GrenadeParriedFlag>();
             if (flag == null)
                 return true;
 
-            //if (!Plugin.ultrapainDifficulty || !ConfigManager.playerTweakToggle.value || !ConfigManager.grenadeBoostToggle.value)
-            //    return true;
+            if (!Plugin.ultrapainDifficulty || !ConfigManager.playerTweakToggle.value || !ConfigManager.grenadeBoostToggle.value)
+                return true;
 
             if (other.gameObject.layer != 14 && other.gameObject.layer != 20)
             {
@@ -184,7 +184,7 @@ namespace Ultrapain.Patches
     {
         static float lastTime = 0;
 
-        static bool Prefix(Explosion __instance, ref Collider other)
+        static bool Prefix(Explosion __instance, ref Collider other, ref Vector3 origin)
         {
             GrenadeParriedFlag flag = __instance.gameObject.GetComponent<GrenadeParriedFlag>();
             if (flag == null || flag.registeredStyle)

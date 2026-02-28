@@ -142,7 +142,7 @@ namespace Ultrapain.Patches
                     GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, damage, lastingmulti);
                     float size = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaXsize.value : ConfigManager.virtueNormalInsigniaXsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
-                    obj.transform.Rotate(new Vector3(90f, 0, 0));
+                    obj.transform.eulerAngles = new Vector3(90f, 0, 0);
                     obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 1.01f;
                 }
                 if (yAxis)
@@ -156,7 +156,7 @@ namespace Ultrapain.Patches
                     GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, damage, lastingmulti);
                     float size = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaZsize.value : ConfigManager.virtueNormalInsigniaZsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
-                    obj.transform.Rotate(new Vector3(0, 0, 90f));
+                    obj.transform.eulerAngles = (new Vector3(0, 0, 90f));
                     obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 0.99f;
                 }
             }

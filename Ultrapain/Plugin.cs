@@ -498,6 +498,8 @@ namespace Ultrapain
             if (!ConfigManager.enemyTweakToggle.value)
                 return;
 
+            //1.1.4: Dude, i dont fucking know anymore. Some of these patches are disabled but im blaming that on me saying "but if i remove this it works!" when i was first working on this. 
+ 
             //New Condition-At-Runtime enemy patches
             harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyIdentifier>("DeliverDamage"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<LegacyChanges_AddBrutalStacking>("Prefix")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("Update"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<LegacyChanges_RemoveViolenceFeatures>("Prefix")));
@@ -727,6 +729,9 @@ namespace Ultrapain
             if (ConfigManager.providenceRandomPattern.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Shoot"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Providence_CrossPatch>("Prefix")));
 
+            //Fix for earthmover, so it doesnt instantly blow up. Oops!
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Countdown>("GetCountdownLength"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<CountdownLengthPatch>("Prefix")));
+
             // ADDME
 
             //harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_Start>("Postfix")));
@@ -734,7 +739,7 @@ namespace Ultrapain
             //harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("FastCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_FastCombo>("Postfix")));
             //harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("CombineSwords"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_CombineSwords>("Postfix")));
             //harmonyTweaks.Patch(Plugin.DoGetMethod<GabrielSecond>("ThrowCombo"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GabrielSecond_ThrowCombo>("Postfix")));
-            
+
         }
 
         private static void PatchAllPlayers()
@@ -748,13 +753,12 @@ namespace Ultrapain
                 return;
             harmonyTweaks.Patch(Plugin.DoGetMethod<Punch>("TryParryProjectile"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Punch_TryParryProjectile_Patch>("Prefix")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<Grenade>("Explode"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Explode_Patch1>("Prefix")));
-            Type[] types = [typeof(Collider)];
-            harmonyTweaks.Patch(typeof(Grenade).GetMethod("Collision", types), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Collision_Patch>("Prefix")));
+            harmonyTweaks.Patch(typeof(Grenade).GetMethod("Collision", new Type[] {typeof(Collider),typeof(Vector3)}), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Collision_Patch>("Prefix")));
             if (ConfigManager.rocketBoostToggle.value)
-                harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide_Patch>("Prefix")));
+                //harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide_Patch>("Prefix")));
 
             if (ConfigManager.rocketGrabbingToggle.value)
-                harmonyTweaks.Patch(Plugin.DoGetMethod<HookArm>("FixedUpdate"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<HookArm_FixedUpdate_Patch>("Prefix")));
+                //harmonyTweaks.Patch(Plugin.DoGetMethod<HookArm>("FixedUpdate"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<HookArm_FixedUpdate_Patch>("Prefix")));
             
             if (ConfigManager.orbStrikeToggle.value)
             {
@@ -798,6 +802,7 @@ namespace Ultrapain
             }
 
             // ADDME
+
             harmonyTweaks.Patch(Plugin.DoGetMethod<Revolver>("Shoot"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Revolver_Shoot>("Transpiler")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<Shotgun>("Shoot"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_Shoot>("Transpiler")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_Shoot>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_Shoot>("Postfix")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<Shotgun>("ShootSinks"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_ShootSinks>("Transpiler")));
