@@ -19,9 +19,9 @@ Theo - Beta Tester/Content Creator ([YouTube](https://www.youtube.com/channel/UC
 BlightedBush - Beta Tester ([YouTube](https://www.youtube.com/channel/UCFENMOjMJ8lhOz0WnpGzeuQ))\
 \
 ULTRAPAIN: Refueled Team\
-Kritzmaker - Full Arsenal/Revamp Port\
+Kritzmaker - Full Arsenal/Revamp/Fraud Port\
 Surytrap - General Support\
 Theo (again) - System Overload Handler\
 \
-MANY things in refueled are still broken!
-A proper rewrite and patch is planned for the Enemy Rework update, if not sooner.
+MANY things in refueled are still broken! This build is just to have it still be "playable" with Fraud.
+Aiming for a """stable""" build of the mod.
