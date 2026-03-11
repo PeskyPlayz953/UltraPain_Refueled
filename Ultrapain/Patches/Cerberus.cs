@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.AI;
 
 namespace Ultrapain.Patches
 {
@@ -22,6 +23,52 @@ namespace Ultrapain.Patches
         }
     }
 
+    class StatueBoss_SetSpeed_Patch
+    {
+        static void Postfix(StatueBoss __instance)
+        {
+            switch (__instance.difficulty)
+            {
+                case 0:
+                    __instance.anim.speed = 0.6f;
+                    break;
+                case 1:
+                    __instance.anim.speed = 0.8f;
+                    break;
+                case 2:
+                    __instance.anim.speed = 1f;
+                    break;
+                case 3:
+                    __instance.anim.speed = 1.2f;
+                    break;
+                case 4:
+                case 5:
+                    __instance.anim.speed = 1.35f;
+                    break;
+                default:
+                    __instance.anim.speed = 1.35f;
+                    break;
+            }
+            __instance.anim.speed *= __instance.realSpeedModifier;
+            if (__instance.enraged)
+            {
+                if (__instance.difficulty > 3)
+                {
+                    __instance.anim.speed = 1.5f * __instance.realSpeedModifier;
+                }
+                else if (__instance.difficulty == 3)
+                {
+                    __instance.anim.speed = 1.25f * __instance.realSpeedModifier;
+                }
+                else
+                {
+                    __instance.anim.speed *= 1.2f;
+                }
+                __instance.anim.SetFloat("WalkSpeed", 1.5f);
+            }
+        }
+    }
+
     class StatueBoss_StopTracking_Patch
     {
         static void Postfix(StatueBoss __instance, Animator ___anim)
@@ -34,7 +81,11 @@ namespace Ultrapain.Patches
                 return;
 
             flag.MakeParryable();
+            Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, "TryParry");
+            __instance.gameObject.GetComponent<Statue>().parryFramesLeft = (int)(ConfigManager.cerberusParryableDuration.value * 60f / __instance.eid.totalSpeedModifier);
             GameObject gameObject = Object.Instantiate<GameObject>(MonoSingleton<DefaultReferenceManager>.Instance.parryableFlash, __instance.transform.position + Vector3.up * 6f + __instance.transform.forward * 3f, __instance.transform.rotation);
+            if (gameObject != null) { Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, "ParryFlashExists"); }
+            //gameObject.transform.localPosition = new Vector3(0, 6, 3);
             gameObject.transform.localScale *= 5f;
             gameObject.transform.SetParent(__instance.transform, true);
         }
@@ -49,7 +100,11 @@ namespace Ultrapain.Patches
                 return;
 
             flag.MakeParryable();
+            Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, "TryParry");
+            __instance.gameObject.GetComponent<Statue>().parryFramesLeft = (int)(ConfigManager.cerberusParryableDuration.value * 60f / __instance.eid.totalSpeedModifier);
             GameObject gameObject = Object.Instantiate<GameObject>(MonoSingleton<DefaultReferenceManager>.Instance.parryableFlash, __instance.transform.position + Vector3.up * 6f + __instance.transform.forward * 3f, __instance.transform.rotation);
+            //gameObject.transform.localPosition = new Vector3(-0.1f, 7.2f, 3f);
+            if (gameObject != null) { Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, "ParryFlashExists"); }
             gameObject.transform.localScale *= 5f;
             gameObject.transform.SetParent(__instance.transform, true);
         }
@@ -57,23 +112,41 @@ namespace Ultrapain.Patches
 
     class Statue_GetHurt_Patch
     {
-        static bool Prefix(Statue __instance, EnemyIdentifier ___eid)
+        static bool Prefix(Enemy __instance)
         {
-            CerberusFlag flag = __instance.GetComponent<CerberusFlag>();
-            if (flag == null)
+            if (__instance.eid.enemyType == EnemyType.Cerberus)
+            {
+                CerberusFlag flag = __instance.GetComponent<CerberusFlag>();
+                if (flag == null)
+                {
+                    Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, "flag not found");
+                    return true;
+                }
+    
+                if (__instance.eid.hitter != "punch" && __instance.eid.hitter != "shotgunzone")
+                {
+                    Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, "incorrect damage type");
                 return true;
+                }
 
-            if (___eid.hitter != "punch" && ___eid.hitter != "shotgunzone")
-                return true;
 
-            float deltaTime = Time.time - flag.lastParryTime;
-            if (deltaTime > ConfigManager.cerberusParryableDuration.value / ___eid.totalSpeedModifier)
-                return true;
-
-            flag.lastParryTime = 0;
-            ___eid.health -= ConfigManager.cerberusParryDamage.value;
-            MonoSingleton<FistControl>.Instance.currentPunch.Parry(false, ___eid);
+                float deltaTime = Time.time - flag.lastParryTime;
+                if (deltaTime > ConfigManager.cerberusParryableDuration.value / __instance.eid.totalSpeedModifier) {
+                    Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, deltaTime);
+                    Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, ConfigManager.cerberusParryableDuration.value / __instance.eid.totalSpeedModifier);
+                    return true;
+                }else
+                {
+                    Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, "success????");
+                }
+    
+                    flag.lastParryTime = 0;
+                __instance.eid.health -= ConfigManager.cerberusParryDamage.value;
+                MonoSingleton<FistControl>.Instance.currentPunch.Parry(false, __instance.eid);
+                return false;
+            }
             return true;
+            
         }
     }
     class StatueBoss_Tackle_Patch

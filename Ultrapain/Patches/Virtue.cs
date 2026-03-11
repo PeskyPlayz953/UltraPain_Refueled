@@ -24,6 +24,10 @@ namespace Ultrapain.Patches
         }
     }
 
+    class VirtueInsigniaFlag : MonoBehaviour
+    {
+        public Vector3 rot;
+    }
     class VirtueFlag : MonoBehaviour
     {
         public AudioSource lighningBoltSFX;
@@ -66,7 +70,7 @@ namespace Ultrapain.Patches
             if (___eid.enemyType != EnemyType.Virtue)
                 return true;
 
-            GameObject createInsignia(Drone instance, EnemyIdentifier eid, int difficulty, EnemyTarget target, int damage = 30, float lastMultiplier = 1)
+            GameObject createInsignia(Drone instance, EnemyIdentifier eid, int difficulty, EnemyTarget target, string extra, int damage = 30, float lastMultiplier = 1)
             {
                 /*GameObject gameObject = GameObject.Instantiate<GameObject>(__instance.projectile.ToAsset(), target.position, Quaternion.identity);
                 VirtueInsignia component = gameObject.GetComponent<VirtueInsignia>();
@@ -110,7 +114,7 @@ namespace Ultrapain.Patches
                 {
                     component.explosionLength = ((__instance.difficulty >= 5) ? 5f : 3.5f)*lastMultiplier;
                 }
-                if (MonoSingleton<PlayerTracker>.Instance.playerType == PlayerType.Platformer)
+                if (PlayerTracker.Instance.playerType == PlayerType.Platformer)
                 {
                     gameObject.transform.localScale *= 0.75f;
                     component.windUpSpeedMultiplier *= 0.875f;
@@ -139,25 +143,27 @@ namespace Ultrapain.Patches
                 float lastingmulti = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaLastMulti.value : ConfigManager.virtueNormalInsigniaLastMulti.value;
                 if (xAxis)
                 {
-                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, damage, lastingmulti);
+                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target,"xaxis", damage, lastingmulti);
                     float size = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaXsize.value : ConfigManager.virtueNormalInsigniaXsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
-                    obj.transform.eulerAngles = new Vector3(90f, 0, 0);
-                    obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 1.01f;
+                    obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 1.05f;
+                    VirtueInsigniaFlag flag = obj.AddComponent<VirtueInsigniaFlag>();
+                    flag.rot = new Vector3(90, 0, 0);
                 }
                 if (yAxis)
                 {
-                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, damage, lastingmulti);
+                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, "none", damage, lastingmulti);
                     float size = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaYsize.value : ConfigManager.virtueNormalInsigniaYsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
                 }
                 if (zAxis)
                 {
-                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, damage, lastingmulti);
+                    GameObject obj = createInsignia(__instance, ___eid, ___difficulty, __instance.eid.target, "zaxis", damage, lastingmulti);
                     float size = (__instance.isEnraged) ? ConfigManager.virtueEnragedInsigniaZsize.value : ConfigManager.virtueNormalInsigniaZsize.value;
                     obj.transform.localScale = new Vector3(size, obj.transform.localScale.y, size);
-                    obj.transform.eulerAngles = (new Vector3(0, 0, 90f));
-                    obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 0.99f;
+                    obj.GetComponent<VirtueInsignia>().windUpSpeedMultiplier *= 0.95f;
+                    VirtueInsigniaFlag flag = obj.AddComponent<VirtueInsigniaFlag>();
+                    flag.rot = new Vector3(0, 0, 90);
                 }
             }
             else
@@ -250,5 +256,17 @@ namespace Ultrapain.Patches
             zAxisInsignia.transform.Rotate(new Vector3(0, 0, 90));
             zAxisInsignia.transform.localScale = new Vector3(zAxisInsignia.transform.localScale.x * horizontalInsigniaScale, zAxisInsignia.transform.localScale.y, zAxisInsignia.transform.localScale.z * horizontalInsigniaScale);
         }*/
+    }
+
+    class VirtueInsignia_Update
+    {
+        static void Postfix(VirtueInsignia __instance)
+        {
+            if (__instance.activationTime < 1f && __instance.GetComponent<VirtueInsigniaFlag> != null && __instance.gameObject != null)
+            {
+                VirtueInsigniaFlag flag = __instance.GetComponent<VirtueInsigniaFlag>();
+                __instance.gameObject.transform.eulerAngles = flag.rot;
+            }
+        }
     }
 }

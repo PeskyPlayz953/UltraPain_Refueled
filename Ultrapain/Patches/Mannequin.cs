@@ -1,10 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using HarmonyLib;
+using System;
+using System.ComponentModel;
+using UnityEngine;
 
 namespace Ultrapain.Patches
 {
-    internal class Mannequin
+    class Mannequin_SetSpeed_Patch
     {
+        static void Postfix(Mannequin __instance)
+        {
+            __instance.anim.speed = 1.3f;
+            __instance.walkSpeed = 24f;
+            __instance.skitterSpeed = 70f;
+        }
     }
 }

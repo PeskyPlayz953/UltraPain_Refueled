@@ -30,7 +30,7 @@ namespace Ultrapain.Patches
             if (___eid.enemyType != EnemyType.Drone)
                 return true;
 
-            if(__0 == __instance.windUpSound)
+            if(__instance.windUpSounds.Contains(__0))
             {
                 DroneFlag flag = __instance.GetComponent<DroneFlag>();
                 if (flag == null)
@@ -112,6 +112,7 @@ namespace Ultrapain.Patches
                 return true;
 
             DroneFlag.Firemode mode = flag.currentMode;
+            Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Message, DroneFlag.allModes);
 
             if (mode == DroneFlag.Firemode.Projectile)
                 return true;
@@ -182,14 +183,14 @@ namespace Ultrapain.Patches
         public enum Firemode : int
         {
             Projectile = 0,
-            Explosive,
-            TurretBeam
+            Explosive = 1,
+            TurretBeam = 2
         }
 
         public ParticleSystem particleSystem;
         public LineRenderer lr;
         public Firemode currentMode = Firemode.Projectile;
-        private static Firemode[] allModes = Enum.GetValues(typeof(Firemode)) as Firemode[];
+        public static Firemode[] allModes = Enum.GetValues(typeof(Firemode)) as Firemode[];
 
         static FieldInfo turretAimLine = typeof(Turret).GetField("aimLine", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
         static Material whiteMat;

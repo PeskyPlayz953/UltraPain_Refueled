@@ -224,4 +224,12 @@ namespace Ultrapain.Patches
                 EnemyIdentifier_DeliverDamage_FF.friendlyBurn = false;
         }
     }
+    class GeryonSetSpeedPatch
+    {
+        static void Postfix(Geryon __instance)
+        {
+            __instance.anim.speed = 1.2f;
+            __instance.maximumHeat = 9f;
+        }
+    }
 }

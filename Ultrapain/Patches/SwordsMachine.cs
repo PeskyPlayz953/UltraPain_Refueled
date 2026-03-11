@@ -37,7 +37,11 @@ namespace Ultrapain.Patches
             {
                 if (anim == null)
                 {
-                    anim = sm.GetComponent<Animator>();
+                    if(sm == null)
+                    {
+                        Destroy(this);
+                    }
+                    sm.TryGetComponent<Animator>(out Animator anim);
                     if (anim == null)
                     {
                         Destroy(this);
@@ -128,20 +132,25 @@ namespace Ultrapain.Patches
         }
     }
 
-    /*class SwordsMachine_SetSpeed_Patch
+    class SwordsMachine_SetSpeed_Patch
     {
-        static bool Prefix(SwordsMachine __instance, ref Animator ___anim)
+        static void Postfix(SwordsMachine __instance)
         {
-            if (___anim == null)
-                ___anim = __instance.GetComponent<Animator>();
+            __instance.nma.speed = (float)(__instance.firstPhase ? 19 : 23);
+            __instance.anim.speed = 1.2f;
+            __instance.anim.SetFloat("ThrowSpeedMultiplier", 1.35f);
+            __instance.anim.SetFloat("AttackSpeedMultiplier", 1f);
+            __instance.moveSpeedMultiplier = ((__instance.difficulty == 3) ? 1.2f : 1.35f);
 
-            SwordsMachineFlag flag = __instance.GetComponent<SwordsMachineFlag>();
-            if (flag == null || !flag.speedingUp)
-                return true;
-
-            return false;
+            __instance.anim.SetFloat("RecoverySpeedMultiplier", (float)((__instance.difficulty >= 4) ? 2 : 1));
+            __instance.anim.speed *= __instance.eid.totalSpeedModifier;
+            __instance.normalAnimSpeed = __instance.anim.speed;
+            if (__instance.enraged)
+            {
+                __instance.anim.speed = __instance.normalAnimSpeed * 1.15f;
+            }
         }
-    }*/
+    }
 
     /*[HarmonyPatch(typeof(SwordsMachine))]
     [HarmonyPatch("Down")]

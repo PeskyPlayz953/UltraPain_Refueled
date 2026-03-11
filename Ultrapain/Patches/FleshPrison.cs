@@ -68,9 +68,11 @@ namespace Ultrapain.Patches
                 GameObject insignia = Instantiate(Plugin.virtueInsignia, prison.transform.position, Quaternion.identity);
                 VirtueInsignia comp = insignia.GetComponent<VirtueInsignia>();
                 GameObject compT = new GameObject("InsigniaHolder");
-                compT.transform.SetParent(transform);
+                compT.transform.SetParent(prison.transform);
                 compT.transform.position = prison.transform.position + distance * rotator.transform.forward;
-                rotator.transform.localRotation = rotator.transform.localRotation * Quaternion.Euler(0, anglePerProjectile, 0);
+                compT.transform.SetParent(rotator.transform);
+                compT.transform.RotateAround(prison.transform.position, Vector3.up, anglePerProjectile * -i);
+                rotator.transform.eulerAngles = rotator.transform.eulerAngles + new Vector3(0, anglePerProjectile, 0);
                 comp.explosionLength = 5f;
                 comp.hadParent = false;
                 comp.target = new EnemyTarget(compT.transform);
@@ -84,7 +86,7 @@ namespace Ultrapain.Patches
                 comp.damage = (int)((prison.altVersion ? ConfigManager.panopticonSpinAttackDamage.value : ConfigManager.fleshPrisonSpinAttackDamage.value) * damageMod);
                 float size = Mathf.Abs(prison.altVersion ? ConfigManager.panopticonSpinAttackSize.value : ConfigManager.fleshPrisonSpinAttackSize.value);
                 insignia.transform.localScale = new Vector3(size, insignia.transform.localScale.y, size);
-                compT.transform.SetParent(transform);
+                
                 insignia.transform.SetParent(transform);
                 insignias.Add(comp);
                 gameObject.name = "FP_InsigniaStorage";
@@ -108,7 +110,15 @@ namespace Ultrapain.Patches
             //DO NOT TOUCH, HELD TOGETHER BY DUCT TAPE AND A DREAM
             foreach (VirtueInsignia v in insignias)
             {
-                v.target.targetTransform.RotateAround(prison.transform.position, Vector3.up, (anglePerSecond * Time.deltaTime * speedMod));
+                if (prison == null)
+                {
+                    Destroy(v);
+                }
+                else
+                {
+                    v.target.targetTransform.position = prison.transform.position;
+                    v.target.targetTransform.RotateAround(prison.transform.position, Vector3.up, (anglePerSecond * Time.deltaTime * speedMod));
+                }
             }
             transform.Rotate(new Vector3(0, (anglePerSecond * Time.deltaTime * speedMod), 0));
 
@@ -134,8 +144,10 @@ namespace Ultrapain.Patches
     {
         static void Postfix(FleshPrison __instance)
         {
-            if (__instance.altVersion)
-                return;
+            if (__instance.difficulty >= 5)
+            {
+                __instance.difficulty = 5;
+            }
 
             //__instance.homingProjectile = GameObject.Instantiate(Plugin.hideousMassProjectile, Vector3.positiveInfinity, Quaternion.identity);
             //__instance.homingProjectile.hideFlags = HideFlags.HideAndDontSave;

@@ -12,13 +12,13 @@ namespace Ultrapain.Patches
 
     class MaliciousFace_Start_Patch
     {
-        static void Postfix(SpiderBody __instance, ref GameObject ___proj, ref int ___maxBurst)
+        static void Postfix(MaliciousFace __instance, ref int ___maxBurst)
         {
             __instance.gameObject.AddComponent<MaliciousFaceFlag>();
 
             if (ConfigManager.maliciousFaceHomingProjectileToggle.value)
             {
-                ___proj = Plugin.homingProjectile;
+                __instance.proj = Plugin.homingProjectile;
                 ___maxBurst = Math.Max(0, ConfigManager.maliciousFaceHomingProjectileCount.value - 1);
             }
         }
@@ -26,7 +26,7 @@ namespace Ultrapain.Patches
 
     class MaliciousFace_ChargeBeam
     {
-        static void Postfix(SpiderBody __instance)
+        static void Postfix(MaliciousFace __instance)
         {
             if (__instance.TryGetComponent<MaliciousFaceFlag>(out MaliciousFaceFlag flag))
                 flag.charging = true;
@@ -35,11 +35,11 @@ namespace Ultrapain.Patches
 
     class MaliciousFace_BeamChargeEnd
     {
-        static bool Prefix(SpiderBody __instance, float ___maxHealth, ref int ___beamsAmount)
+        static bool Prefix(MaliciousFace __instance, ref float ___maxHealth, ref int ___beamsAmount)
         {
             if (__instance.TryGetComponent<MaliciousFaceFlag>(out MaliciousFaceFlag flag) && flag.charging)
             {
-                if (__instance.health < ___maxHealth / 2)
+                if (__instance.eid.health < ___maxHealth / 2)
                     ___beamsAmount = ConfigManager.maliciousFaceBeamCountEnraged.value;
                 else
                     ___beamsAmount = ConfigManager.maliciousFaceBeamCountNormal.value;
@@ -65,14 +65,16 @@ namespace Ultrapain.Patches
             return true;
         }*/
 
-        static void Postfix(SpiderBody __instance, ref GameObject ___currentProj, EnemyIdentifier ___eid/*, bool __state*/)
+        static void Postfix(MaliciousFace __instance, ref GameObject ___currentProj, ref EnemyIdentifier ___eid)
         {
             /*if (!__state)
                 return;*/
 
             Projectile proj = ___currentProj.GetComponent<Projectile>();
-            proj.target = new EnemyTarget(MonoSingleton<PlayerTracker>.Instance.GetTarget());
+            proj.target = __instance.eid.target;
             proj.speed = ConfigManager.maliciousFaceHomingProjectileSpeed.value;
+            proj.homingType = HomingType.Gradual;
+            proj.turnSpeed = 10;
             proj.turningSpeedMultiplier = ConfigManager.maliciousFaceHomingProjectileTurnSpeed.value;
             proj.damage = ConfigManager.maliciousFaceHomingProjectileDamage.value;
             proj.safeEnemyType = EnemyType.MaliciousFace;
@@ -84,7 +86,7 @@ namespace Ultrapain.Patches
 
     class MaliciousFace_Enrage_Patch
     {
-        static void Postfix(SpiderBody __instance)
+        static void Postfix(MaliciousFace __instance)
         {
             EnemyIdentifier comp = __instance.GetComponent<EnemyIdentifier>();
             for(int i = 0; i < ConfigManager.maliciousFaceRadianceAmount.value; i++)

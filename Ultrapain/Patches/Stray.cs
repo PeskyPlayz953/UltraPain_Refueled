@@ -142,7 +142,7 @@ namespace Ultrapain.Patches
     public class ZombieProjectile_ThrowProjectile_Patch
     {
         public static float normalizedTime = 0f;
-        public static float animSpeed = 5f;
+        public static float animSpeed = 15f;
 
         public static float projectileSpeed = 75;
         public static float turnSpeedMultiplier = 0.45f;

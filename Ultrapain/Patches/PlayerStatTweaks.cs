@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UIElements;
+using BepInEx;
 
 namespace Ultrapain.Patches
 {
@@ -356,55 +358,44 @@ namespace Ultrapain.Patches
         }
     }
 
-    class Nailgun_Shoot
+    class Nail_Start
     {
-        static FieldInfo f_Nailgun_heatSinks = typeof(Nailgun).GetField("heatSinks", UnityUtils.instanceFlag);
-        static FieldInfo f_Nailgun_heatUp = typeof(Nailgun).GetField("heatUp", UnityUtils.instanceFlag);
         
-        public static void ModifyNail(Nailgun inst, GameObject nail)
+        static void Postfix(Nail __instance)
         {
-            Nail comp = nail.GetComponent<Nail>();
-
-            if (inst.altVersion)
+            //Plugin.BepLog.Log(BepInEx.Logging.LogLevel.Info, __instance..weaponType);
+            if (__instance.sawblade)
             {
                 // Blue saw launcher
-                if (inst.variation == 1)
+                if (__instance.weaponType == "nailgun1")
                 {
-                    comp.damage = ConfigManager.sawBlueDamage.value;
-                    comp.hitAmount = ConfigManager.sawBlueHitAmount.value;
+                    __instance.damage = ConfigManager.sawBlueDamage.value;
+                    __instance.hitAmount = ConfigManager.sawBlueHitAmount.value;
                 }
                 // Green saw launcher
-                else
+                else if (__instance.weaponType == "nailgun0")
                 {
-                    comp.damage = ConfigManager.sawGreenDamage.value;
-                    float maxHit = ConfigManager.sawGreenHitAmount.value;
-                    float heatSinks = (float)f_Nailgun_heatSinks.GetValue(inst);
-                    float heatUp = (float)f_Nailgun_heatUp.GetValue(inst);
-
-                    if (heatSinks >= 1)
-                        comp.hitAmount = Mathf.Lerp(maxHit, Mathf.Max(1f, maxHit), (maxHit - 2f) * heatUp);
-                    else
-                        comp.hitAmount = 1f;
+                    __instance.damage = ConfigManager.sawGreenDamage.value;
                 }
             }
             else
             {
                 // Blue nailgun
-                if (inst.variation == 1)
+                if (__instance.weaponType == "nailgun1")
                 {
-                    comp.damage = ConfigManager.nailgunBlueDamage.value;
+                    __instance.damage = ConfigManager.nailgunBlueDamage.value;
                 }
-                else
+                else if (__instance.weaponType == "nailgun0")
                 {
-                    if (comp.heated)
-                        comp.damage = ConfigManager.nailgunGreenBurningDamage.value;
+                    if (__instance.heated)
+                        __instance.damage = ConfigManager.nailgunGreenBurningDamage.value;
                     else
-                        comp.damage = ConfigManager.nailgunGreenDamage.value;
+                        __instance.damage = ConfigManager.nailgunGreenDamage.value;
                 }
             }
         }
 
-        static FieldInfo f_Nailgun_nail = typeof(Nailgun).GetField("nail", UnityUtils.instanceFlag);
+        /*static FieldInfo f_Nailgun_nail = typeof(Nailgun).GetField("nail", UnityUtils.instanceFlag);
         static MethodInfo m_Nailgun_Shoot_ModifyNail = typeof(Nailgun_Shoot).GetMethod("ModifyNail", UnityUtils.staticFlag);
         static MethodInfo m_Transform_set_forward = typeof(GameObject).GetProperty("transform", UnityUtils.instanceFlag).GetSetMethod();
 
@@ -448,7 +439,7 @@ namespace Ultrapain.Patches
             code.Insert(insertIndex, new CodeInstruction(OpCodes.Call, m_Nailgun_Shoot_ModifyNail));
 
             return code.AsEnumerable();
-        }
+        }*/
     }
 
     class Nailgun_SuperSaw

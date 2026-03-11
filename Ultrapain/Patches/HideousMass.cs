@@ -66,4 +66,12 @@ namespace Ultrapain.Patches
             __instance.explosiveProjectile = Plugin.hideousMassProjectile;
         }
     }
+
+    public class Mass_SetSpeed_Patch
+    {
+        static void Postfix(Mass __instance)
+        {
+            __instance.anim.speed = 1.25f * __instance.eid.totalSpeedModifier;
+        }
+    }
 }

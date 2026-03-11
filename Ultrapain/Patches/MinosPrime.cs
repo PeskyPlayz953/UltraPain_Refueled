@@ -3,84 +3,70 @@ using Sandbox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ULTRAKILL.Portal;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace Ultrapain.Patches
 {
-    class MinosPrimeCharge
+    class MinosPrimeCharge : MonoBehaviour
     {
         static GameObject decoy;
 
-        public static void CreateDecoy()
+        public GameObject updateDecoy(MinosPrime instance)
         {
-            if (decoy != null || Plugin.minosPrime == null)
-                return;
-
-            decoy = GameObject.Instantiate(Plugin.minosPrime, Vector3.zero, Quaternion.identity);
-            decoy.SetActive(false);
-
-            GameObject.Destroy(decoy.GetComponent<MinosPrime>());
-            GameObject.Destroy(decoy.GetComponent<Machine>());
-            GameObject.Destroy(decoy.GetComponent<BossHealthBar>());
-            GameObject.Destroy(decoy.GetComponent<EventOnDestroy>());
-            GameObject.Destroy(decoy.GetComponent<BossIdentifier>());
-            GameObject.Destroy(decoy.GetComponent<EnemyIdentifier>());
-            GameObject.Destroy(decoy.GetComponent<BasicEnemyDataRelay>());
-            GameObject.Destroy(decoy.GetComponent<Rigidbody>());
-            GameObject.Destroy(decoy.GetComponent<CapsuleCollider>());
-            GameObject.Destroy(decoy.GetComponent<AudioSource>());
-            GameObject.Destroy(decoy.GetComponent<NavMeshAgent>());
-            foreach (SkinnedMeshRenderer renderer in UnityUtils.GetComponentsInChildrenRecursively<SkinnedMeshRenderer>(decoy.transform))
+            GameObject refminos = UnityEngine.Object.Instantiate(instance.gameObject);
+            refminos.tag = "Untagged";
+            if (refminos.GetComponent<MinosPrime> != null)
             {
-                renderer.material = new Material(Plugin.gabrielFakeMat);
+                Component.Destroy(refminos.GetComponent<MinosPrime>());
+                Component.Destroy(refminos.GetComponent<MinosPrime>());
+                Component.Destroy(refminos.GetComponent<EnemySpawnableInstance>());
+                Component.Destroy(refminos.GetComponent<EnemyIdentifier>());
+                Component.Destroy(refminos.GetComponent<Enemy>());
+                Component.Destroy(refminos.GetComponent<Machine>());
+                Component.Destroy(refminos.GetComponent<NavMeshAgent>());
+                Component.Destroy(refminos.GetComponent<AudioSource>());
+                Component.Destroy(refminos.GetComponent<CapsuleCollider>());
+                Component.Destroy(refminos.GetComponent<Rigidbody>());
+                Component.Destroy(refminos.GetComponent<PlayOnAwakeTracker>());
+                Component.Destroy(refminos.GetComponent<VirtualAudioFilter>());
+                Component.Destroy(refminos.GetComponent<MinosPrimeFlag>());
+                Component.Destroy(refminos.GetComponent<MinosPrimeCharge>());
+                Component.Destroy(refminos.GetComponent<PortalAwareRenderer>());
             }
-            MindflayerDecoy comp = decoy.AddComponent<MindflayerDecoy>();
-            comp.fadeSpeed = 1f;
-            //decoy.GetComponent<Animator>().StopPlayback();
-            //decoy.GetComponent<Animator>().Update(100f);
-
-            GameObject.Destroy(decoy.transform.Find("SwingCheck").gameObject);
-            GameObject.Destroy(decoy.transform.Find("Capsule").gameObject);
-            GameObject.Destroy(decoy.transform.Find("Point Light").gameObject);
-            foreach (EnemyIdentifierIdentifier eii in UnityUtils.GetComponentsInChildrenRecursively<EnemyIdentifierIdentifier>(decoy.transform))
-                GameObject.Destroy(eii);
+            
+            return refminos;
         }
 
-        static void DrawTrail(MinosPrime instance, Animator anim, Vector3 startPosition, Vector3 targetPosition)
+        public void CreateDecoy(MinosPrime instance, Vector3 position, float transparencyOverride = 1f, Animator animatorOverride = null)
         {
-            if(decoy == null)
+            if (instance.target == null)
             {
-                CreateDecoy();
                 return;
             }
-            targetPosition = Vector3.MoveTowards(targetPosition, startPosition, 5f);
-
-            Vector3 currentPosition = startPosition;
-            float distance = Vector3.Distance(startPosition, targetPosition);
-            if (distance < 2.5f)
-                return;
-
-            float deltaDistance = 2.5f;
-
-            float fadeSpeed = 1f / ConfigManager.minosPrimeTeleportTrailDuration.value;
-            AnimatorStateInfo currentAnimatorStateInfo = anim.GetCurrentAnimatorStateInfo(0);
-            int maxIterations = Mathf.CeilToInt(distance / deltaDistance);
-            float currentTransparency = 0.1f;
-            float deltaTransparencyPerIteration = 1f / maxIterations;
-            while (currentPosition != targetPosition)
+            if (MinosPrimeCharge.decoy == null)
             {
-                GameObject gameObject = GameObject.Instantiate(decoy, currentPosition, instance.transform.rotation);
-                gameObject.SetActive(true);
-                Animator componentInChildren = gameObject.GetComponentInChildren<Animator>();
-                componentInChildren.Play(currentAnimatorStateInfo.shortNameHash, 0, currentAnimatorStateInfo.normalizedTime);
-                componentInChildren.speed = 0f;
-                MindflayerDecoy comp = gameObject.GetComponent<MindflayerDecoy>();
-                comp.fadeSpeed = fadeSpeed;
-                currentTransparency += deltaTransparencyPerIteration;
-                comp.fadeOverride = Mathf.Min(1f, currentTransparency);
-
-                currentPosition = Vector3.MoveTowards(currentPosition, targetPosition, deltaDistance);
+                MinosPrimeCharge.decoy = this.updateDecoy(instance);
+            }
+            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(decoy, position, instance.transform.GetChild(0).rotation, instance.transform.parent);
+            gameObject.AddComponent<MindflayerDecoy>();
+            Animator componentInChildren = gameObject.GetComponentInChildren<Animator>();
+            AnimatorStateInfo animatorStateInfo = animatorOverride ? animatorOverride.GetCurrentAnimatorStateInfo(0) : instance.anim.GetCurrentAnimatorStateInfo(0);
+            componentInChildren.Play(animatorStateInfo.shortNameHash, 0, animatorStateInfo.normalizedTime);
+            componentInChildren.speed = 0f;
+            foreach (MindflayerDecoy mindflayerDecoy in gameObject.GetComponentsInChildren<MindflayerDecoy>())
+            {
+                mindflayerDecoy.fadeOverride = transparencyOverride;
+            }
+        }
+        //
+        public void DrawTrail(MinosPrime instance, Animator anim, Vector3 startPosition, Vector3 targetPosition)
+        {
+            int num = Mathf.RoundToInt(Vector3.Distance(instance.transform.position, targetPosition) / 2.5f);
+            for (int i = 0; i < num; i++)
+            {
+                    this.CreateDecoy(instance, Vector3.Lerp(instance.transform.position, targetPosition, (float)i / (float)num), (float)i / (float)num + 0.1f, null);
             }
         }
 
@@ -118,9 +104,9 @@ namespace Ultrapain.Patches
             }
         }
 
-        static void TeleportPostfix(MinosPrime __instance, Animator ___anim, Vector3 __0, Vector3 __1)
+        static void TeleportPostfix(MinosPrime __instance, ref Animator ___anim, ref Vector3 __0, ref Vector3 __1)
         {
-            DrawTrail(__instance, ___anim, __1, __0);
+            __instance.GetComponent<MinosPrimeCharge>().DrawTrail(__instance, ___anim, __1, __0);
         }
     }
 
@@ -168,6 +154,7 @@ namespace Ultrapain.Patches
             if (ConfigManager.minosPrimeEarlyPhaseToggle.value)
                 ___enraged = true;
             __instance.gameObject.AddComponent<MinosPrimeFlag>();
+            __instance.gameObject.AddComponent<MinosPrimeCharge>();
 
             if (ConfigManager.minosPrimeComboExplosionToggle.value)
             {
@@ -189,6 +176,7 @@ namespace Ultrapain.Patches
 
             if (flag.plannedAttack != "")
             {
+                Plugin.BepLog.Log(BepInEx.Logging.LogLevel.None, flag.plannedAttack);
                 __instance.SendMessage(flag.plannedAttack);
                 flag.plannedAttack = "";
             }

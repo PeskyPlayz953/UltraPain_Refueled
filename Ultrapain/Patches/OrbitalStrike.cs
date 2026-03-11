@@ -36,6 +36,10 @@ namespace Ultrapain.Patches
         [HarmonyBefore(new string[] { "tempy.fastpunch" })]
         static bool Prefix(Punch __instance)
         {
+            if(__instance.name == "ArmSomnia(Clone)")
+            {
+                return true;
+            }
             __instance.blastWave = GameObject.Instantiate(Plugin.explosionWaveKnuckleblaster, new Vector3(1000000, 1000000, 1000000), Quaternion.identity);
             __instance.blastWave.AddComponent<OrbitalStrikeFlag>();
             return true;
@@ -44,6 +48,10 @@ namespace Ultrapain.Patches
         [HarmonyBefore(new string[] { "tempy.fastpunch" })]
         static void Postfix(Punch __instance)
         {
+            if (__instance.name == "ArmSomnia(Clone)")
+            {
+                return;
+            }
             GameObject.Destroy(__instance.blastWave);
             __instance.blastWave = Plugin.explosionWaveKnuckleblaster;
         }

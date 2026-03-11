@@ -23,6 +23,7 @@ using ProjectProphet;
 using ProjectProphet.Behaviours.Props;
 using TMPro;
 using GameConsole.pcon;
+using BepInEx.Logging;
 
 namespace Ultrapain
 {
@@ -35,7 +36,7 @@ namespace Ultrapain
         //Keeping GUID for compatibility with AngryLevelLoader
         public const string PLUGIN_GUID = "com.eternalUnion.ultraPain";
         public const string PLUGIN_NAME = "ULTRAPAIN: REFUELED";
-        public const string PLUGIN_VERSION = "1.1.3";
+        public const string PLUGIN_VERSION = "1.1.4";
 
         public static Plugin instance;
 
@@ -151,6 +152,8 @@ namespace Ultrapain
         }
 
         private static bool loadedPrefabs = false;
+
+        public static ManualLogSource BepLog;
         public void LoadPrefabs()
         {
             if (loadedPrefabs)
@@ -434,11 +437,13 @@ namespace Ultrapain
                     closeTrigger.callback.AddListener((BaseEventData data) => info.SetActive(false));
                     trigger.triggers.Add(closeTrigger);
                 }
+            }else if(currentSceneName == "005a4f2ce549277458596ee0f0d6e88c" && MonoSingleton<PrefsManager>.Instance.GetInt("difficulty", 0) >= 5)
+            {
+                MonoSingleton<HudMessageReceiver>.Instance.SendHudMessage("ULTRAPAIN: P-1 is currently unstable in this build of the mod.", "", "", 0, true, false, true);
             }
 
-            // LOAD CUSTOM PREFABS HERE TO AVOID MID GAME LAG
-            MinosPrimeCharge.CreateDecoy();
-            GameObject shockwaveSisyphus = SisyphusInstructionist_Start.shockwave;
+                // LOAD CUSTOM PREFABS HERE TO AVOID MID GAME LAG
+                GameObject shockwaveSisyphus = SisyphusInstructionist_Start.shockwave;
         }
 
         public static class StyleIDs
@@ -505,6 +510,15 @@ namespace Ultrapain
             harmonyTweaks.Patch(Plugin.DoGetMethod<NewMovement>("Update"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<LegacyChanges_RemoveViolenceFeatures>("Prefix")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieProjectiles>("GetSpeed"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<ZombieProjectile_GetSpeed_Patch>("Prefix")));
 
+            //Setspeed patches for Difficulty 6
+            harmonyTweaks.Patch(Plugin.DoGetMethod<SwordsMachine>("SetSpeed"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<SwordsMachine_SetSpeed_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("SetSpeed"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_SetSpeed_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Mass>("SetSpeed"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Mass_SetSpeed_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Zombie>("SetSpeed"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Filth_Zombie_SetSpeed_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieMelee>("GetSpeed"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Filth_ZombieMelee_GetSpeed_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<ZombieMelee>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Filth_ZombieMelee_Start_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Geryon>("UpdateDifficulty"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<GeryonSetSpeedPatch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Mannequin>("SetSpeed"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Mannequin_SetSpeed_Patch>("Postfix")));
 
             if (ConfigManager.friendlyFireDamageOverrideToggle.value)
             {
@@ -522,6 +536,7 @@ namespace Ultrapain
             harmonyTweaks.Patch(Plugin.DoGetMethod<EnemyIdentifier>("UpdateModifiers"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<EnemyIdentifier_UpdateModifiers>("Postfix")));
 
             harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_Start_Patch>("Postfix")));
+            
             if (ConfigManager.cerberusDashToggle.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("Tackle"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_Tackle_Patch>("Postfix")));
             if (ConfigManager.cerberusParryable.value)
@@ -529,7 +544,7 @@ namespace Ultrapain
                 harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("StopTracking"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_StopTracking_Patch>("Postfix")));
                 harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("Stomp"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_Stomp_Patch>("Postfix")));
                 harmonyTweaks.Patch(Plugin.DoGetMethod<StatueBoss>("StopDash"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<StatueBoss_StopDash_Patch>("Prefix")));
-                harmonyTweaks.Patch(Plugin.DoGetMethod<Statue>("GetHurt"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Statue_GetHurt_Patch>("Prefix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<Enemy>("GetHurt"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Statue_GetHurt_Patch>("Prefix")));
             }
 
             harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Drone_Start_Patch>("Postfix")));
@@ -549,7 +564,8 @@ namespace Ultrapain
             if(ConfigManager.filthExplodeToggle.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<SwingCheck2>("CheckCollision"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<SwingCheck2_CheckCollision_Patch2>("Prefix")));
 
-            if(ConfigManager.fleshPrisonSpinAttackToggle.value)
+            harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<FleshPrisonStart>("Postfix")));
+            if (ConfigManager.fleshPrisonSpinAttackToggle.value)
                 harmonyTweaks.Patch(Plugin.DoGetMethod<FleshPrison>("HomingProjectileAttack"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<FleshPrisonShoot>("Postfix")));
 
             if (ConfigManager.hideousMassInsigniaToggle.value)
@@ -558,15 +574,15 @@ namespace Ultrapain
                 harmonyTweaks.Patch(Plugin.DoGetMethod<Mass>("ShootExplosive"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<HideousMassHoming>("Postfix")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<HideousMassHoming>("Prefix")));
             }
 
-            harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_Start_Patch>("Postfix")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("ChargeBeam"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_ChargeBeam>("Postfix")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("BeamChargeEnd"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_BeamChargeEnd>("Prefix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<MaliciousFace>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_Start_Patch>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<MaliciousFace>("ChargeBeam"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_ChargeBeam>("Postfix")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<MaliciousFace>("BeamChargeEnd"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_BeamChargeEnd>("Prefix")));
             if (ConfigManager.maliciousFaceHomingProjectileToggle.value)
             {
-                harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("ShootProj"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_ShootProj_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<MaliciousFace>("ShootProj"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_ShootProj_Patch>("Postfix")));
             }
             if (ConfigManager.maliciousFaceRadianceOnEnrage.value)
-                harmonyTweaks.Patch(Plugin.DoGetMethod<SpiderBody>("Enrage"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_Enrage_Patch>("Postfix")));
+                harmonyTweaks.Patch(Plugin.DoGetMethod<MaliciousFace>("Enrage"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<MaliciousFace_Enrage_Patch>("Postfix")));
 
             harmonyTweaks.Patch(Plugin.DoGetMethod<Mindflayer>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Mindflayer_Start_Patch>("Postfix")));
             if (ConfigManager.mindflayerShootTweakToggle.value)
@@ -677,7 +693,8 @@ namespace Ultrapain
             harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_Start_Patch>("Postfix")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("SpawnDroneInsignia"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_SpawnInsignia_Patch>("Prefix")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<Drone>("Death"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Virtue_Death_Patch>("Prefix")));
-           
+            harmonyTweaks.Patch(Plugin.DoGetMethod<VirtueInsignia>("Activating"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<VirtueInsignia_Update>("Postfix")));
+
 
             if (ConfigManager.sisyInstJumpShockwave.value)
             {
@@ -755,10 +772,15 @@ namespace Ultrapain
             harmonyTweaks.Patch(Plugin.DoGetMethod<Grenade>("Explode"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Explode_Patch1>("Prefix")));
             harmonyTweaks.Patch(typeof(Grenade).GetMethod("Collision", new Type[] {typeof(Collider),typeof(Vector3)}), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Grenade_Collision_Patch>("Prefix")));
             if (ConfigManager.rocketBoostToggle.value)
+            {
                 //harmonyTweaks.Patch(Plugin.DoGetMethod<Explosion>("Collide"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Explosion_Collide_Patch>("Prefix")));
+            }
+
 
             if (ConfigManager.rocketGrabbingToggle.value)
+            {
                 //harmonyTweaks.Patch(Plugin.DoGetMethod<HookArm>("FixedUpdate"), prefix: GetHarmonyMethod(Plugin.DoGetMethod<HookArm_FixedUpdate_Patch>("Prefix")));
+            }
             
             if (ConfigManager.orbStrikeToggle.value)
             {
@@ -806,7 +828,7 @@ namespace Ultrapain
             harmonyTweaks.Patch(Plugin.DoGetMethod<Revolver>("Shoot"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Revolver_Shoot>("Transpiler")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<Shotgun>("Shoot"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_Shoot>("Transpiler")), prefix: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_Shoot>("Prefix")), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_Shoot>("Postfix")));
             harmonyTweaks.Patch(Plugin.DoGetMethod<Shotgun>("ShootSinks"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Shotgun_ShootSinks>("Transpiler")));
-            harmonyTweaks.Patch(Plugin.DoGetMethod<Nailgun>("Shoot"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Nailgun_Shoot>("Transpiler")));
+            harmonyTweaks.Patch(Plugin.DoGetMethod<Nail>("Start"), postfix: GetHarmonyMethod(Plugin.DoGetMethod<Nail_Start>("Postfix"))); // Do not.
             harmonyTweaks.Patch(Plugin.DoGetMethod<Nailgun>("SuperSaw"), transpiler: GetHarmonyMethod(Plugin.DoGetMethod<Nailgun_SuperSaw>("Transpiler")));
             
             if (ConfigManager.hardDamagePercent.normalizedValue != 1)
@@ -895,6 +917,7 @@ namespace Ultrapain
             instance = this;
             workingPath = Assembly.GetExecutingAssembly().Location;
             workingDir = Path.GetDirectoryName(workingPath);
+            Plugin.BepLog = base.Logger;
 
             Logger.LogInfo($"Working path: {workingPath}, Working dir: {workingDir}");
             try
